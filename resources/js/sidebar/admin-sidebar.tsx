@@ -6,6 +6,7 @@ import {
     Building2,
     Building2 as Building2Icon,
     Calendar,
+    Cog,
     CreditCard,
     LayoutDashboard,
     Map,
@@ -72,6 +73,7 @@ const navigation: NavItem[] = [
         children: [
             { label: 'Users', routeName: 'admin.users.index', icon: Users, permission: 'users.view-any' },
             { label: 'Roles', routeName: 'admin.roles.index', icon: Shield, permission: 'roles.view-any' },
+            { label: 'Settings', routeName: 'admin.settings.index', icon: Cog, permission: 'roles.view-any' },
         ],
     },
 ];

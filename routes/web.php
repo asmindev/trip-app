@@ -8,7 +8,19 @@ use Inertia\Inertia;
 
 // Public Routes
 Route::get('/', function () {
-    return Inertia::render('homepage/welcome');
+    $settings = \App\Models\Setting::where('group', 'homepage')
+        ->get()
+        ->mapWithKeys(fn($s) => [$s->key => $s->formatted_value]);
+
+    $routes = \App\Models\TripRoute::with('branch')
+        ->where('status', 'ACTIVE')
+        ->take(3)
+        ->get();
+
+    return Inertia::render('homepage/welcome', [
+        'settings' => $settings,
+        'routes' => $routes,
+    ]);
 })->name('home');
 Route::get('login', [LoginController::class, 'create'])->name('login');
 Route::post('login', [LoginController::class, 'store']);
@@ -61,6 +73,10 @@ Route::middleware('auth')->group(function () {
         // RBAC / User Management
         Route::resource('users', \App\Http\Controllers\Admin\UserController::class);
         Route::resource('roles', \App\Http\Controllers\Admin\RoleController::class)->only(['index', 'update']);
+
+        // Settings
+        Route::get('settings', [\App\Http\Controllers\Admin\SettingController::class, 'index'])->name('settings.index');
+        Route::put('settings', [\App\Http\Controllers\Admin\SettingController::class, 'update'])->name('settings.update');
     });
 
     // --- AREA OPERATOR ---
