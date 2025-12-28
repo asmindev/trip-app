@@ -37,6 +37,7 @@ Route::middleware('auth')->group(function () {
         })->name('dashboard');
 
         // Resource Controller untuk Schedule
+        Route::post('schedules/bulk', [ScheduleController::class, 'bulkStore'])->name('schedules.bulk-store');
         Route::resource('schedules', ScheduleController::class);
 
         // MASTER DATA ROUTES
@@ -50,6 +51,12 @@ Route::middleware('auth')->group(function () {
             ->parameters(['trip-routes' => 'tripRoute']);
 
         Route::resource('pricelists', \App\Http\Controllers\Admin\PricelistController::class);
+
+        // Booking Management (Admin)
+        Route::resource('bookings', \App\Http\Controllers\Admin\BookingController::class)->only(['index', 'show', 'destroy']);
+
+        // Payment Management (Admin) - Xendit Integration
+        Route::resource('payments', \App\Http\Controllers\Admin\PaymentController::class)->only(['index', 'show']);
 
         // RBAC / User Management
         Route::resource('users', \App\Http\Controllers\Admin\UserController::class);

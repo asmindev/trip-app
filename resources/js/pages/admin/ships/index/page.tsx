@@ -26,6 +26,8 @@ import { toast } from 'sonner';
 import { Ship } from '../components/schema';
 
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import AdminLayout from '@/layouts/admin-layout';
+import { PageProps } from '@/types';
 
 // Interface untuk Pagination Link
 interface PaginationLink {
@@ -406,7 +408,10 @@ export default function ShipIndex({ ships, stats }: Props) {
                                 </div>
                                 <div className="space-y-2">
                                     <Label htmlFor="edit-status">Status</Label>
-                                    <Select value={editForm.data.status} onValueChange={(val: any) => editForm.setData('status', val)}>
+                                    <Select
+                                        value={editForm.data.status}
+                                        onValueChange={(val: 'ACTIVE' | 'INACTIVE' | 'MAINTENANCE') => editForm.setData('status', val)}
+                                    >
                                         <SelectTrigger>
                                             <SelectValue />
                                         </SelectTrigger>

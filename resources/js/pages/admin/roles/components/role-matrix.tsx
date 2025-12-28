@@ -33,15 +33,35 @@ export function RoleMatrix({ roles, groupedPermissions }: RoleMatrixProps) {
     const getRoleParams = (roleName: string) => {
         switch (roleName.toLowerCase()) {
             case 'super-admin':
-                return { color: 'text-purple-600', bg: 'bg-purple-100', border: 'border-purple-200' };
+                return {
+                    color: 'text-purple-600 dark:text-purple-400',
+                    bg: 'bg-purple-100 dark:bg-purple-900/20',
+                    border: 'border-purple-200 dark:border-purple-800',
+                };
             case 'admin':
-                return { color: 'text-blue-600', bg: 'bg-blue-100', border: 'border-blue-200' };
+                return {
+                    color: 'text-blue-600 dark:text-blue-400',
+                    bg: 'bg-blue-100 dark:bg-blue-900/20',
+                    border: 'border-blue-200 dark:border-blue-800',
+                };
             case 'operator':
-                return { color: 'text-emerald-600', bg: 'bg-emerald-100', border: 'border-emerald-200' };
+                return {
+                    color: 'text-emerald-600 dark:text-emerald-400',
+                    bg: 'bg-emerald-100 dark:bg-emerald-900/20',
+                    border: 'border-emerald-200 dark:border-emerald-800',
+                };
             case 'customer':
-                return { color: 'text-orange-600', bg: 'bg-orange-100', border: 'border-orange-200' };
+                return {
+                    color: 'text-orange-600 dark:text-orange-400',
+                    bg: 'bg-orange-100 dark:bg-orange-900/20',
+                    border: 'border-orange-200 dark:border-orange-800',
+                };
             default:
-                return { color: 'text-gray-600', bg: 'bg-gray-100', border: 'border-gray-200' };
+                return {
+                    color: 'text-gray-600 dark:text-gray-400',
+                    bg: 'bg-gray-100 dark:bg-gray-900/20',
+                    border: 'border-gray-200 dark:border-gray-800',
+                };
         }
     };
 
@@ -152,8 +172,8 @@ export function RoleMatrix({ roles, groupedPermissions }: RoleMatrixProps) {
                                                         <TableCell key={`${role.id}-${perm.id}`} className="h-10 py-2 text-center">
                                                             <div className="flex h-full items-center justify-center">
                                                                 {isRestricted ? (
-                                                                    <div className="flex h-4 w-4 items-center justify-center rounded-sm bg-primary/20">
-                                                                        <div className="h-2 w-2 rounded-full bg-primary/50" />
+                                                                    <div className="flex h-4 w-4 items-center justify-center rounded-sm bg-primary/20 dark:bg-primary/30">
+                                                                        <div className="h-2 w-2 rounded-full bg-primary/50 dark:bg-primary" />
                                                                     </div>
                                                                 ) : (
                                                                     <Checkbox

@@ -1,3 +1,4 @@
+import { ThemeToggle } from '@/components/theme-toggle';
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from '@/components/ui/breadcrumb';
 import { Separator } from '@/components/ui/separator';
 import { SidebarInset, SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
@@ -21,12 +22,15 @@ export default function AdminLayout({ children, title }: AdminLayoutProps) {
             toast[flash.type ?? 'message'](flash.content);
         }
     }, [props.flash]);
+
+    const sidebarOpen = (props.sidebarOpen as boolean) ?? true;
+
     return (
-        <SidebarProvider>
+        <SidebarProvider defaultOpen={sidebarOpen}>
             <AdminSidebar />
             <SidebarInset>
                 <header className="sticky top-0 z-50 flex h-16 shrink-0 items-center gap-2 border-b border-border/40 bg-background/95 backdrop-blur transition-[width,height] ease-linear group-has-[data-collapsible=icon]/sidebar-wrapper:h-12 supports-backdrop-filter:bg-background/60">
-                    <div className="flex items-center gap-2 px-4">
+                    <div className="flex w-full items-center justify-between gap-2 px-4">
                         <SidebarTrigger className="-ml-1" />
                         <Separator orientation="vertical" className="mr-2 h-4" />
                         <Breadcrumb>
@@ -44,6 +48,9 @@ export default function AdminLayout({ children, title }: AdminLayoutProps) {
                                 )}
                             </BreadcrumbList>
                         </Breadcrumb>
+                        <div className="ml-auto">
+                            <ThemeToggle />
+                        </div>
                     </div>
                 </header>
                 <div className="flex flex-1 flex-col gap-4 p-4 pt-0">{children}</div>

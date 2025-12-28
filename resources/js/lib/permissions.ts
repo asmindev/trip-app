@@ -1,6 +1,7 @@
 // Permission types for frontend usage
 export type Permission =
     // Dashboard
+    | 'dashboard.view'
     | 'dashboard.view-admin'
     | 'dashboard.view-operator'
     | 'dashboard.view-customer'
@@ -99,7 +100,21 @@ export type Permission =
     // Settings & Logs
     | 'settings.view'
     | 'settings.update'
-    | 'audit-logs.view';
+    | 'settings.system'
+    | 'audit-logs.view'
+    | 'activity-logs.view'
+
+    // New Sidebar Permissions
+    | 'work-orders.view-any'
+    | 'operational-services.view-any'
+    | 'transactions.view-any'
+    | 'banks.view-any'
+    | 'masters.categories.view-any'
+    | 'masters.items.view-any'
+    | 'masters.services.view-any'
+    | 'masters.service-steps.view-any'
+    | 'regions.view'
+    | 'customers.view-any';
 
 export type Role = 'super-admin' | 'admin' | 'operator' | 'customer';
 

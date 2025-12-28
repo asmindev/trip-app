@@ -1,5 +1,6 @@
-import { router, usePage } from '@inertiajs/react'; // Import router and usePage
-import { PageProps } from '@/types'; // Import PageProps
+import { hasRole, type Role } from '@/lib/permissions';
+import { PageProps } from '@/types';
+import { router, usePage } from '@inertiajs/react';
 import { ChevronsUpDown, Plus } from 'lucide-react';
 import * as React from 'react';
 
@@ -9,7 +10,6 @@ import {
     DropdownMenuItem,
     DropdownMenuLabel,
     DropdownMenuSeparator,
-    DropdownMenuShortcut,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { SidebarMenu, SidebarMenuButton, SidebarMenuItem, useSidebar } from '@/components/ui/sidebar';
@@ -21,33 +21,59 @@ export function BranchSwitcher({
         name: string;
         logo: React.ElementType;
         plan: string;
-        // We need the ID to switch
         id: number;
     }[];
 }) {
     const { isMobile } = useSidebar();
-    // Get activeBranch from global props
-    const { activeBranch } = usePage<PageProps & { activeBranch?: { id: number; name: string; code: string } }>().props;
+    const { activeBranch, auth } = usePage<PageProps & { activeBranch?: { id: number; name: string; code: string } }>().props;
 
-    // Find the full branch object from the passed branches array based on activeBranch.id
-    // Fallback to first branch if no activeBranch
-    const currentBranch = branches.find(b => b.id === activeBranch?.id) || branches[0];
+    // Check if user is operator (cannot switch branches)
+    const isOperator = hasRole('operator', auth.user?.roles as Role[]);
 
-    // Helper to switch branch
+    const currentBranch = branches.find((b) => b.id === activeBranch?.id) || branches[0];
+
     const switchBranch = (branchId: number) => {
-        router.post(route('admin.branches.switch'), { branch_id: branchId }, {
-            preserveScroll: true,
-            onSuccess: () => {
-                // Optional: Toast or feedback
-                console.log("Branch switched");
-            }
-        });
+        // Prevent operators from switching
+        if (isOperator) {
+            return;
+        }
+
+        router.post(
+            route('admin.branches.switch'),
+            { branch_id: branchId },
+            {
+                preserveScroll: true,
+                onSuccess: () => {
+                    console.log('Branch switched');
+                },
+            },
+        );
     };
 
     if (!currentBranch) {
         return null;
     }
 
+    // For operators, show static branch (no dropdown)
+    if (isOperator) {
+        return (
+            <SidebarMenu>
+                <SidebarMenuItem>
+                    <SidebarMenuButton size="lg" className="cursor-default">
+                        <div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-sidebar-primary text-sidebar-primary-foreground">
+                            <currentBranch.logo className="size-4" />
+                        </div>
+                        <div className="grid flex-1 text-left text-sm leading-tight">
+                            <span className="truncate font-semibold">{currentBranch.name}</span>
+                            <span className="truncate text-xs">{currentBranch.plan}</span>
+                        </div>
+                    </SidebarMenuButton>
+                </SidebarMenuItem>
+            </SidebarMenu>
+        );
+    }
+
+    // For admin/super-admin, show dropdown
     return (
         <SidebarMenu>
             <SidebarMenuItem>
@@ -72,11 +98,7 @@ export function BranchSwitcher({
                     >
                         <DropdownMenuLabel className="text-xs text-muted-foreground">Branches</DropdownMenuLabel>
                         {branches.map((branch) => (
-                            <DropdownMenuItem
-                                key={branch.name}
-                                onClick={() => switchBranch(branch.id)}
-                                className="gap-2 p-2"
-                            >
+                            <DropdownMenuItem key={branch.name} onClick={() => switchBranch(branch.id)} className="gap-2 p-2">
                                 <div className="flex size-6 items-center justify-center rounded-sm border">
                                     <branch.logo className="size-4 shrink-0" />
                                 </div>

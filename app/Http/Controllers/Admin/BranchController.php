@@ -68,6 +68,11 @@ class BranchController extends Controller
 
     public function switch(Request $request)
     {
+        // Operators cannot switch branches
+        if ($request->user()->hasRole('operator')) {
+            return redirect()->back()->with('error', 'Operators cannot switch branches.');
+        }
+
         $request->validate([
             'branch_id' => 'required|exists:branches,id',
         ]);
