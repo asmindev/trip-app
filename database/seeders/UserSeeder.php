@@ -12,30 +12,33 @@ class UserSeeder extends Seeder
     public function run(): void
     {
         // 1. Super Admin (Bisa akses semua cabang)
-        User::create([
+        $admin = User::create([
             'name' => 'Super Admin',
-            'email' => 'admin@kapaltrip.com',
+            'email' => 'admin@trip.com',
             'password' => Hash::make('password'),
             'role' => 'ADMIN',
             'account_type' => 'PUBLIC',
             'phone_number' => '081234567890',
             'branch_id' => null, // Admin tidak terikat cabang
         ]);
+        $admin->assignRole('admin');
+        $admin->assignRole('super-admin');
 
         // 2. Operator Kendari (Hanya bisa scan tiket Kendari)
         $kendari = Branch::where('code', 'KDI')->first();
-        User::create([
+        $operator = User::create([
             'name' => 'Operator Kendari',
-            'email' => 'op.kendari@kapaltrip.com',
+            'email' => 'op.kendari@trip.com',
             'password' => Hash::make('password'),
             'role' => 'OPERATOR',
             'account_type' => 'PUBLIC',
             'phone_number' => '081299998888',
-            'branch_id' => $kendari->id, // Terikat cabang
+            'branch_id' => $kendari ? $kendari->id : null, // Terikat cabang
         ]);
+        $operator->assignRole('operator');
 
         // 3. Customer Public
-        User::create([
+        $customer = User::create([
             'name' => 'Jhon Doe',
             'email' => 'customer@gmail.com',
             'password' => Hash::make('password'),
@@ -44,9 +47,10 @@ class UserSeeder extends Seeder
             'phone_number' => '085255554444',
             'branch_id' => null,
         ]);
+        $customer->assignRole('customer');
 
         // 4. Customer Event (Akun Khusus)
-        User::create([
+        $eventCustomer = User::create([
             'name' => 'Panitia Gathering',
             'email' => 'event@perusahaan.com',
             'password' => Hash::make('password'),

@@ -14,10 +14,13 @@ class DatabaseSeeder extends Seeder
         // 2. Master Data (Cabang, Kapal, Rute, Harga)
         $this->call(MasterSeeder::class);
 
-        // 3. User (Admin, Operator, Customer)
+        // 3. Roles & Permissions (PENTING: Sebelum UserSeeder)
+        $this->call(RolesAndPermissionsSeeder::class);
+
+        // 4. User (Admin, Operator, Customer)
         $this->call(UserSeeder::class);
 
-        // 4. Jadwal (Schedule)
+        // 5. Jadwal (Schedule)
         $this->call(ScheduleSeeder::class);
     }
 }
