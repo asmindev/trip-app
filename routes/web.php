@@ -40,6 +40,7 @@ Route::middleware('auth')->group(function () {
         Route::resource('schedules', ScheduleController::class);
 
         // MASTER DATA ROUTES
+        Route::post('branches/switch', [\App\Http\Controllers\Admin\BranchController::class, 'switch'])->name('branches.switch');
         Route::resource('branches', \App\Http\Controllers\Admin\BranchController::class);
         Route::resource('ships', \App\Http\Controllers\Admin\ShipController::class);
 

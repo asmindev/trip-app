@@ -28,6 +28,9 @@ export type Permission =
     // Master Data (Pricing & Promos)
     | 'pricelists.view-any'
     | 'pricelists.manage'
+    | 'pricelists.create'
+    | 'pricelists.update'
+    | 'pricelists.delete'
     | 'promotions.view-any'
     | 'promotions.create'
     | 'promotions.update'

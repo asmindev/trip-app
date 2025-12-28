@@ -31,8 +31,8 @@ class ScheduleController extends Controller
 
         return Inertia::render('admin/schedules/index/page', [
             'schedules' => $schedules,
-            'ships' => Ship::select('id', 'name')->get(),
-            'routes' => TripRoute::select('id', 'name')->get(),
+            'ships' => Ship::select(['id', 'name'])->get(),
+            'routes' => TripRoute::select(['id', 'name'])->get(),
         ]);
     }
 
@@ -57,9 +57,9 @@ class ScheduleController extends Controller
     {
         return Inertia::render('admin/schedules/edit/page', [
             'schedule' => $schedule->load(['ship', 'route', 'tripType']),
-            'ships' => Ship::select('id', 'name')->get(),
-            'routes' => TripRoute::select('id', 'name')->get(),
-            'tripTypes' => TripType::select('id', 'name')->get(),
+            'ships' => Ship::select(['id', 'name'])->get(),
+            'routes' => TripRoute::select(['id', 'name'])->get(),
+            'tripTypes' => TripType::select(['id', 'name'])->get(),
         ]);
     }
 

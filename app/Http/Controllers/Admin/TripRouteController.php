@@ -12,46 +12,60 @@ use Spatie\QueryBuilder\QueryBuilder;
 
 class TripRouteController extends Controller
 {
+    private function getActiveBranchId()
+    {
+        return session('active_branch_id') ?? Branch::where('status', 'ACTIVE')->value('id');
+    }
+
     public function index()
     {
+        $activeBranchId = $this->getActiveBranchId();
+
         $routes = QueryBuilder::for(TripRoute::class)
-            ->with('branch')
+            ->where('branch_id', $activeBranchId) // Active Branch Context
             ->allowedFilters([
                 'name',
-                AllowedFilter::exact('branch_id'),
             ])
+            ->defaultSort('name')
             ->paginate(10)
             ->withQueryString();
 
+        // Stats
+        $routesQuery = TripRoute::where('branch_id', $activeBranchId);
+        $stats = [
+            'total_routes' => $routesQuery->count(),
+            'total_waypoints' => $routesQuery->get()->sum(fn($r) => count($r->waypoints ?? [])),
+            'avg_duration' => round($routesQuery->avg('duration_minutes') ?? 0),
+        ];
+
         return Inertia::render('admin/routes/index/page', [
             'routes' => $routes,
-            'branches' => Branch::select(['id', 'name'])->where('status', 'ACTIVE')->get(),
+            'stats' => $stats,
         ]);
     }
 
     public function store(Request $request)
     {
+        $activeBranchId = $this->getActiveBranchId();
+
         $validated = $request->validate([
-            'branch_id' => 'required|exists:branches,id',
             'name' => 'required|string|max:255',
             'duration_minutes' => 'required|integer|min:1',
-
-            // Validasi JSON Waypoints
             'waypoints' => 'nullable|array',
-            'waypoints.*.name' => 'required|string', // Nama titik (e.g. Pulau Bokori)
-            'waypoints.*.time' => 'required|string', // Estimasi jam (e.g. 09:00)
+            'waypoints.*.name' => 'required|string',
+            'waypoints.*.time' => 'required|string',
         ]);
+
+        $validated['branch_id'] = $activeBranchId;
 
         TripRoute::create($validated);
 
-        return redirect()->back()->with('success', 'Rute perjalanan berhasil dibuat.');
+        return redirect()->back()->with('success', 'Route created successfully.');
     }
 
-    public function update(Request $request, TripRoute $tripRoute) // Implicit binding changed to $tripRoute
+    public function update(Request $request, TripRoute $tripRoute)
     {
-        // Parameter di route harus {trip_route}, sesuaikan variabel di sini
         $validated = $request->validate([
-            'branch_id' => 'required|exists:branches,id',
             'name' => 'required|string|max:255',
             'duration_minutes' => 'required|integer|min:1',
             'status' => 'required|in:ACTIVE,INACTIVE',
@@ -62,7 +76,7 @@ class TripRouteController extends Controller
 
         $tripRoute->update($validated);
 
-        return redirect()->back()->with('success', 'Rute berhasil diupdate.');
+        return redirect()->back()->with('success', 'Route updated successfully.');
     }
 
     public function destroy(TripRoute $tripRoute)

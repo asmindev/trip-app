@@ -1,11 +1,11 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import AdminLayout from '@/layouts/admin-layout';
 import { Head } from '@inertiajs/react';
 
 export default function OperatorDashboard() {
     return (
-        <div className="p-6">
+        <AdminLayout title="Dashboard">
             <Head title="Operator Dashboard" />
-            <h1 className="mb-6 text-2xl font-bold">Operator Dashboard</h1>
 
             <div className="grid gap-4 md:grid-cols-2">
                 <Card>
@@ -26,6 +26,6 @@ export default function OperatorDashboard() {
                     </CardContent>
                 </Card>
             </div>
-        </div>
+        </AdminLayout>
     );
 }

@@ -12,6 +12,8 @@ class BranchController extends Controller
 {
     public function index()
     {
+        $this->authorize('viewAny', Branch::class);
+
         $branches = QueryBuilder::for(Branch::class)
             ->allowedFilters(['name', 'code', 'status'])
             ->allowedSorts(['name', 'created_at'])
@@ -26,6 +28,8 @@ class BranchController extends Controller
 
     public function store(Request $request)
     {
+        $this->authorize('create', Branch::class);
+
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'code' => 'required|string|max:10|unique:branches,code',
@@ -34,11 +38,13 @@ class BranchController extends Controller
 
         Branch::create($validated);
 
-        return redirect()->back()->with('success', 'Cabang berhasil ditambahkan.');
+        return redirect()->back()->with('success', 'Branch created successfully.');
     }
 
     public function update(Request $request, Branch $branch)
     {
+        $this->authorize('update', $branch);
+
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'code' => 'required|string|max:10|unique:branches,code,' . $branch->id,
@@ -48,18 +54,26 @@ class BranchController extends Controller
 
         $branch->update($validated);
 
-        return redirect()->back()->with('success', 'Cabang berhasil diperbarui.');
+        return redirect()->back()->with('success', 'Branch updated successfully.');
     }
 
     public function destroy(Branch $branch)
     {
-        // Cek dulu apakah cabang punya kapal/user aktif agar aman
-        if ($branch->ships()->exists() || $branch->users()->exists()) {
-            return back()->with('error', 'Tidak bisa hapus cabang yang memiliki data Kapal/User.');
-        }
+        $this->authorize('delete', $branch);
 
-        $branch->delete(); // Soft delete
+        $branch->delete();
 
-        return redirect()->back()->with('success', 'Cabang berhasil dihapus.');
+        return redirect()->back()->with('success', 'Branch deleted successfully.');
+    }
+
+    public function switch(Request $request)
+    {
+        $request->validate([
+            'branch_id' => 'required|exists:branches,id',
+        ]);
+
+        session(['active_branch_id' => $request->branch_id]);
+
+        return redirect()->back()->with('success', 'Branch context switched.');
     }
 }

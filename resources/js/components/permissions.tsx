@@ -1,4 +1,5 @@
 import type { AuthData, Permission, Role } from '@/lib/permissions';
+import { PageProps } from '@/types';
 import { usePage } from '@inertiajs/react';
 
 type CanProps = {
@@ -21,7 +22,7 @@ type CanProps = {
  * </Can>
  */
 export function Can({ permission, fallback = null, children }: CanProps) {
-    const { auth } = usePage<{ auth: AuthData }>().props;
+    const { auth } = usePage<PageProps>().props;
 
     if (!auth.user) return <>{fallback}</>;
 
@@ -51,7 +52,7 @@ type HasRoleProps = {
  * </HasRole>
  */
 export function HasRole({ role, fallback = null, children }: HasRoleProps) {
-    const { auth } = usePage<{ auth: AuthData }>().props;
+    const { auth } = usePage<PageProps>().props;
 
     if (!auth.user) return <>{fallback}</>;
 
@@ -76,7 +77,7 @@ export function HasRole({ role, fallback = null, children }: HasRoleProps) {
  * }
  */
 export function usePermission() {
-    const { auth } = usePage<{ auth: AuthData }>().props;
+    const { auth } = usePage<PageProps>().props;
 
     const can = (permission: Permission | Permission[]): boolean => {
         if (!auth.user) return false;

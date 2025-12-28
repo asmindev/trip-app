@@ -46,6 +46,10 @@ class RolesAndPermissionsSeeder extends Seeder
             // Pricing & Promo
             'pricelists.view-any',
             'pricelists.manage',
+            'pricelists.view',
+            'pricelists.create',
+            'pricelists.update',
+            'pricelists.delete',
             'promotions.view-any',
             'promotions.create',
             'promotions.update',

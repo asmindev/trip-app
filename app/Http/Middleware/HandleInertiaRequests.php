@@ -2,8 +2,11 @@
 
 namespace App\Http\Middleware;
 
+use App\Models\Branch;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 use Inertia\Middleware;
+use Tighten\Ziggy\Ziggy;
 
 class HandleInertiaRequests extends Middleware
 {
@@ -29,10 +32,55 @@ class HandleInertiaRequests extends Middleware
      */
     public function share(Request $request): array
     {
+        $user = $request->user();
+        $sharedBranches = [];
+        $activeBranch = null;
+
+        if ($user) {
+            // Load all branches for the switcher
+            $sharedBranches = Branch::select(['id', 'name', 'code'])->get();
+
+            // Determine active branch: Session > First Available > Null
+            if (session()->has('active_branch_id')) {
+                $activeBranch = Branch::find(session('active_branch_id'));
+            }
+
+            if (!$activeBranch && $sharedBranches->isNotEmpty()) {
+                $activeBranch = $sharedBranches->first();
+            }
+        }
+
         return [
             ...parent::share($request),
+
+            'name' => config('app.name'),
+
             'auth' => [
-                'user' => $request->user(),
+                'user' => $user ? [
+                    'id' => $user->id,
+                    'name' => $user->name,
+                    'email' => $user->email,
+                    'roles' => $user->getRoleNames(),
+                    'permissions' => $user->getAllPermissions()->pluck('name'),
+                ] : null,
+            ],
+
+            // Global Data
+            'sharedBranches' => $sharedBranches,
+            'activeBranch' => $activeBranch,
+
+            'ziggy' => fn() => [
+                ...(new Ziggy)->toArray(),
+                'location' => $request->url(),
+            ],
+
+            'flash' => fn() => [
+                'type' => session()->has('error')
+                    ? 'error'
+                    : (session()->has('success') ? 'success' : 'message'),
+                'content' => session()->get('error')
+                    ?? session()->get('success')
+                    ?? session()->get('message'),
             ],
         ];
     }
