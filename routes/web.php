@@ -50,6 +50,10 @@ Route::middleware('auth')->group(function () {
             ->parameters(['trip-routes' => 'tripRoute']);
 
         Route::resource('pricelists', \App\Http\Controllers\Admin\PricelistController::class);
+
+        // RBAC / User Management
+        Route::resource('users', \App\Http\Controllers\Admin\UserController::class);
+        Route::resource('roles', \App\Http\Controllers\Admin\RoleController::class)->only(['index', 'update']);
     });
 
     // --- AREA OPERATOR ---

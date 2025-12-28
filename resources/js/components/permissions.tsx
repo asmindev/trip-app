@@ -1,4 +1,4 @@
-import type { AuthData, Permission, Role } from '@/lib/permissions';
+import type { Permission, Role } from '@/lib/permissions';
 import { PageProps } from '@/types';
 import { usePage } from '@inertiajs/react';
 
@@ -27,7 +27,7 @@ export function Can({ permission, fallback = null, children }: CanProps) {
     if (!auth.user) return <>{fallback}</>;
 
     const permissions = Array.isArray(permission) ? permission : [permission];
-    const hasPermission = permissions.some((perm) => auth.user!.permissions.includes(perm));
+    const hasPermission = auth.user.roles.includes('super-admin') || permissions.some((perm) => auth.user!.permissions.includes(perm));
 
     return hasPermission ? <>{children}</> : <>{fallback}</>;
 }
@@ -81,6 +81,9 @@ export function usePermission() {
 
     const can = (permission: Permission | Permission[]): boolean => {
         if (!auth.user) return false;
+
+        // Super Admin bypass
+        if (auth.user.roles.includes('super-admin')) return true;
 
         const permissions = Array.isArray(permission) ? permission : [permission];
         return permissions.some((perm) => auth.user!.permissions.includes(perm));

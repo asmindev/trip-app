@@ -106,7 +106,17 @@ class RolesAndPermissionsSeeder extends Seeder
             'users.assign-branch',
             'settings.view',
             'settings.update',
+            'settings.view',
+            'settings.update',
             'audit-logs.view',
+
+            // Roles & Permissions
+            'roles.view-any',
+            'roles.view',
+            'roles.create',
+            'roles.update',
+            'roles.delete',
+            'permissions.view',
         ];
 
         foreach ($permissions as $permission) {

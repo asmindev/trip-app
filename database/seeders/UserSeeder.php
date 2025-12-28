@@ -12,8 +12,20 @@ class UserSeeder extends Seeder
     public function run(): void
     {
         // 1. Super Admin (Bisa akses semua cabang)
-        $admin = User::create([
+        $superAdmin = User::create([
             'name' => 'Super Admin',
+            'email' => 'superadmin@trip.com',
+            'password' => Hash::make('password'),
+            'role' => 'ADMIN',
+            'account_type' => 'PUBLIC',
+            'phone_number' => '081234567890',
+            'branch_id' => null, // Admin tidak terikat cabang
+        ]);
+        $superAdmin->assignRole('super-admin');
+
+        // admin
+        $admin = User::create([
+            'name' => 'Admin',
             'email' => 'admin@trip.com',
             'password' => Hash::make('password'),
             'role' => 'ADMIN',
@@ -22,7 +34,8 @@ class UserSeeder extends Seeder
             'branch_id' => null, // Admin tidak terikat cabang
         ]);
         $admin->assignRole('admin');
-        $admin->assignRole('super-admin');
+
+
 
         // 2. Operator Kendari (Hanya bisa scan tiket Kendari)
         $kendari = Branch::where('code', 'KDI')->first();

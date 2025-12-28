@@ -109,22 +109,29 @@ export function AdminSidebar({ ...props }: React.ComponentProps<typeof Sidebar>)
         });
     }
 
-    // 4. Settings (Admin)
+    // 4. Settings
+    const settingsItems = [];
+
+    if (can(['users.view-any', 'roles.view-any'])) {
+        settingsItems.push({
+            title: 'Users & Roles',
+            url: route('admin.users.index'),
+        });
+    }
+
     if (hasRole(['admin', 'super-admin'])) {
+        settingsItems.push({
+            title: 'General',
+            url: '#', // route('admin.settings.index')
+        });
+    }
+
+    if (settingsItems.length > 0) {
         navMain.push({
             title: 'Settings',
             url: '#',
             icon: Settings2,
-            items: [
-                {
-                    title: 'Users',
-                    url: '#', // route('admin.users.index')
-                },
-                {
-                    title: 'General',
-                    url: '#', // route('admin.settings.index')
-                },
-            ],
+            items: settingsItems,
         });
     }
 

@@ -88,6 +88,14 @@ export type Permission =
     | 'users.assign-role'
     | 'users.assign-branch'
 
+    // Roles & Permissions
+    | 'roles.view-any'
+    | 'roles.view'
+    | 'roles.create'
+    | 'roles.update'
+    | 'roles.delete'
+    | 'permissions.view'
+
     // Settings & Logs
     | 'settings.view'
     | 'settings.update'
