@@ -3,8 +3,16 @@ import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { Link } from '@inertiajs/react';
 import { Menu, Ship, X } from 'lucide-react';
+import { AnimatePresence, motion } from 'motion/react';
 import { useEffect, useState } from 'react';
 import { route } from 'ziggy-js';
+
+const navLinks = [
+    { name: 'Beranda', href: '#' },
+    { name: 'Rute', href: '#destinasi' },
+    { name: 'Jadwal', href: '#jadwal' },
+    { name: 'Cek Pesanan', href: '#' },
+];
 
 export function LandingNavbar() {
     const [isOpen, setIsOpen] = useState(false);
@@ -22,85 +30,124 @@ export function LandingNavbar() {
         <header
             className={cn(
                 'fixed top-0 z-50 w-full transition-all duration-500',
-                isScrolled ? 'border-b border-border/50 bg-background/80 py-3 backdrop-blur-xl' : 'bg-transparent py-6',
+                isScrolled
+                    ? 'border-b border-white/10 bg-white/80 py-3 shadow-lg shadow-slate-900/5 backdrop-blur-xl dark:bg-slate-900/80'
+                    : 'bg-transparent py-5',
             )}
         >
             <div className="container mx-auto flex items-center justify-between px-6">
                 {/* Logo */}
                 <Link href={route('home')} className="group flex items-center gap-3">
-                    <div className="relative flex size-12 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-600 via-cyan-500 to-teal-400 transition-transform group-hover:scale-110 group-hover:rotate-3">
-                        <Ship className="size-6 text-white" />
-                        <div className="absolute inset-0 rounded-2xl bg-white/20 opacity-0 transition-opacity group-hover:opacity-100" />
-                    </div>
+                    <motion.div
+                        whileHover={{ scale: 1.05, rotate: 3 }}
+                        className="relative flex size-11 items-center justify-center rounded-xl bg-linear-to-br from-cyan-500 to-teal-500 shadow-lg shadow-cyan-500/25"
+                    >
+                        <Ship className="size-5 text-white" />
+                    </motion.div>
                     <div className="flex flex-col">
-                        <span className="text-xl font-black tracking-tight">KAPAL TRIP</span>
-                        <span className="text-[10px] font-medium tracking-widest text-muted-foreground uppercase">Jelajahi Nusantara</span>
+                        <span
+                            className={cn(
+                                'text-xl font-bold tracking-tight transition-colors',
+                                isScrolled ? 'text-slate-900 dark:text-white' : 'text-white',
+                            )}
+                        >
+                            Kapal Trip
+                        </span>
                     </div>
                 </Link>
 
                 {/* Desktop Navigation */}
                 <nav className="hidden items-center gap-1 lg:flex">
-                    {['Destinasi', 'Jadwal', 'Promo', 'Tentang'].map((item) => (
+                    {navLinks.map((item) => (
                         <a
-                            key={item}
-                            href={`#${item.toLowerCase()}`}
-                            className="group relative px-5 py-2 text-sm font-medium transition-colors hover:text-primary"
+                            key={item.name}
+                            href={item.href}
+                            className={cn(
+                                'group relative px-4 py-2 text-sm font-medium transition-colors',
+                                isScrolled
+                                    ? 'text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white'
+                                    : 'text-white/80 hover:text-white',
+                            )}
                         >
-                            {item}
-                            <span className="absolute bottom-0 left-1/2 h-0.5 w-0 bg-gradient-to-r from-blue-600 to-cyan-500 transition-all group-hover:left-0 group-hover:w-full" />
+                            {item.name}
+                            <span className="absolute inset-x-4 -bottom-0.5 h-0.5 origin-left scale-x-0 rounded-full bg-linear-to-r from-cyan-500 to-teal-500 transition-transform group-hover:scale-x-100" />
                         </a>
                     ))}
                 </nav>
 
                 {/* Actions */}
                 <div className="flex items-center gap-3">
-                    <ThemeToggle />
+                    <div className={cn(isScrolled ? '' : '[&_button]:text-white')}>
+                        <ThemeToggle />
+                    </div>
+
                     <Link href={route('login')} className="hidden lg:inline-block">
-                        <Button variant="ghost" size="sm" className="font-semibold">
+                        <Button
+                            variant="ghost"
+                            size="sm"
+                            className={cn(
+                                'font-semibold',
+                                isScrolled
+                                    ? 'text-slate-700 hover:text-slate-900 dark:text-slate-300'
+                                    : 'text-white hover:bg-white/10 hover:text-white',
+                            )}
+                        >
                             Masuk
                         </Button>
                     </Link>
-                    <Link href={route('booking.index')}>
+
+                    <Link href={route('register')}>
                         <Button
                             size="sm"
-                            className="relative overflow-hidden bg-gradient-to-r from-blue-600 via-cyan-500 to-teal-400 font-semibold transition-all hover:scale-105 hover:shadow-2xl hover:shadow-cyan-500/25"
+                            className="rounded-full bg-cyan-600 px-5 font-semibold shadow-lg shadow-cyan-600/25 transition-all hover:scale-105 hover:bg-cyan-700 hover:shadow-xl"
                         >
-                            <span className="relative z-10">Pesan Sekarang</span>
+                            Daftar
                         </Button>
                     </Link>
 
                     {/* Mobile Menu Button */}
-                    <Button variant="ghost" size="icon" className="lg:hidden" onClick={() => setIsOpen(!isOpen)}>
+                    <Button
+                        variant="ghost"
+                        size="icon"
+                        className={cn('lg:hidden', !isScrolled && 'text-white hover:bg-white/10')}
+                        onClick={() => setIsOpen(!isOpen)}
+                    >
                         {isOpen ? <X className="size-5" /> : <Menu className="size-5" />}
                     </Button>
                 </div>
             </div>
 
             {/* Mobile Menu */}
-            <div
-                className={cn(
-                    'fixed inset-x-0 top-[72px] border-b border-border bg-background/95 backdrop-blur-xl transition-all duration-300 lg:hidden',
-                    isOpen ? 'translate-y-0 opacity-100' : 'pointer-events-none -translate-y-full opacity-0',
+            <AnimatePresence>
+                {isOpen && (
+                    <motion.div
+                        initial={{ opacity: 0, height: 0 }}
+                        animate={{ opacity: 1, height: 'auto' }}
+                        exit={{ opacity: 0, height: 0 }}
+                        className="overflow-hidden border-t border-slate-200/50 bg-white/95 backdrop-blur-xl lg:hidden dark:border-slate-700/50 dark:bg-slate-900/95"
+                    >
+                        <nav className="container mx-auto flex flex-col gap-1 px-6 py-4">
+                            {navLinks.map((item) => (
+                                <a
+                                    key={item.name}
+                                    href={item.href}
+                                    className="rounded-lg px-4 py-3 text-base font-medium text-slate-700 transition-colors hover:bg-slate-100 dark:text-slate-200 dark:hover:bg-slate-800"
+                                    onClick={() => setIsOpen(false)}
+                                >
+                                    {item.name}
+                                </a>
+                            ))}
+                            <div className="mt-4 border-t border-slate-200 pt-4 dark:border-slate-700">
+                                <Link href={route('login')}>
+                                    <Button variant="outline" className="w-full">
+                                        Masuk
+                                    </Button>
+                                </Link>
+                            </div>
+                        </nav>
+                    </motion.div>
                 )}
-            >
-                <nav className="container mx-auto flex flex-col gap-2 px-6 py-6">
-                    {['Destinasi', 'Jadwal', 'Promo', 'Tentang'].map((item) => (
-                        <a
-                            key={item}
-                            href={`#${item.toLowerCase()}`}
-                            className="py-3 text-lg font-medium transition-colors hover:text-primary"
-                            onClick={() => setIsOpen(false)}
-                        >
-                            {item}
-                        </a>
-                    ))}
-                    <Link href={route('login')} className="mt-4">
-                        <Button variant="outline" className="w-full">
-                            Masuk
-                        </Button>
-                    </Link>
-                </nav>
-            </div>
+            </AnimatePresence>
         </header>
     );
 }

@@ -5,6 +5,7 @@ import { HeroSection } from './components/hero-section';
 import { LandingFooter } from './components/landing-footer';
 import { LandingNavbar } from './components/landing-navbar';
 import { PopularRoutesSection } from './components/popular-routes-section';
+import { SocialProofSection } from './components/social-proof-section';
 import { TestimonialsSection } from './components/testimonials-section';
 
 export interface HomepageSettings {
@@ -46,14 +47,16 @@ interface WelcomeProps {
 export default function Welcome({ settings = {}, routes = [] }: WelcomeProps) {
     return (
         <>
-            <Head title="Kapal Trip - Jelajahi Surga Tersembunyi Indonesia" />
+            <Head title="Kapal Trip - Jelajahi Nusantara Tanpa Batas" />
 
-            <div className="min-h-screen bg-background text-foreground">
+            <div className="min-h-screen bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-50">
                 <LandingNavbar />
                 <HeroSection settings={settings.homepage_hero} />
+                <SocialProofSection />
                 <FeaturesSection features={settings.homepage_features} />
                 <PopularRoutesSection routes={routes} />
                 <TestimonialsSection testimonials={settings.homepage_testimonials} />
+                {/* <PromoSection /> */}
                 <CTASection settings={settings.homepage_cta} />
                 <LandingFooter />
             </div>
@@ -64,33 +67,6 @@ export default function Welcome({ settings = {}, routes = [] }: WelcomeProps) {
                     to { transform: translateX(calc(-100% - var(--gap))); }
                 }
                 .animate-marquee { animation: marquee linear infinite; }
-
-                @keyframes gradient {
-                    0%, 100% { background-position: 0% 50%; }
-                    50% { background-position: 100% 50%; }
-                }
-                .animate-gradient {
-                    background-size: 200% 200%;
-                    animation: gradient 6s ease infinite;
-                }
-
-                @keyframes float {
-                    0%, 100% { transform: translateY(0px) rotate(0deg); }
-                    50% { transform: translateY(-20px) rotate(5deg); }
-                }
-                .animate-float { animation: float 6s ease-in-out infinite; }
-
-                @keyframes draw {
-                    from { stroke-dashoffset: 300; }
-                    to { stroke-dashoffset: 0; }
-                }
-                .animate-draw {
-                    stroke-dasharray: 300;
-                    animation: draw 1.5s ease-out forwards;
-                }
-
-                .scrollbar-hide::-webkit-scrollbar { display: none; }
-                .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
             `}</style>
         </>
     );
