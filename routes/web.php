@@ -8,17 +8,12 @@ use Inertia\Inertia;
 
 // Public Routes
 Route::get('/', function () {
-    $settings = \App\Models\Setting::where('group', 'homepage')
-        ->get()
-        ->mapWithKeys(fn($s) => [$s->key => $s->formatted_value]);
-
     $routes = \App\Models\TripRoute::with('branch')
         ->where('status', 'ACTIVE')
         ->take(3)
         ->get();
 
     return Inertia::render('homepage/welcome', [
-        'settings' => $settings,
         'routes' => $routes,
     ]);
 })->name('home');
@@ -26,14 +21,17 @@ Route::get('login', [LoginController::class, 'create'])->name('login');
 Route::post('login', [LoginController::class, 'store']);
 Route::post('logout', [LoginController::class, 'destroy'])->name('logout');
 
+// Public Booking Routes (Browse schedules without login)
+Route::get('/booking', [BookingController::class, 'index'])->name('booking.index');
+Route::get('/booking/create/{schedule}', [BookingController::class, 'create'])->name('booking.create');
+
 // Authenticated Routes
 Route::middleware('auth')->group(function () {
 
     // --- AREA CUSTOMER ---
     // Role: Customer (dan Admin boleh akses utk testing)
     Route::middleware(['role:customer|admin|super-admin'])->group(function () {
-        Route::get('/booking', [BookingController::class, 'index'])->name('booking.index');
-        Route::get('/booking/create/{schedule}', [BookingController::class, 'create'])->name('booking.create');
+        // Booking submission requires login
         Route::post('/booking', [BookingController::class, 'store'])->name('booking.store');
 
         // Detail Booking menggunakan Policy 'can:view,booking'

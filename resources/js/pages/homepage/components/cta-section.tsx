@@ -28,11 +28,11 @@ export function CTASection({ settings }: CTASectionProps) {
     return (
         <section className="relative overflow-hidden py-24 lg:py-32">
             {/* Background */}
-            <div className="absolute inset-0 bg-linear-to-r from-cyan-500 via-teal-500 to-cyan-600" />
+            <div className="absolute inset-0 bg-secondary" />
 
             {/* Mesh gradient overlay */}
             <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,var(--tw-gradient-stops))] from-white/20 via-transparent to-transparent" />
-            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_right,var(--tw-gradient-stops))] from-teal-300/20 via-transparent to-transparent" />
+            <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_right,var(--tw-gradient-stops))] from-blue-400/20 via-transparent to-transparent" />
 
             {/* Grid pattern */}
             <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff10_1px,transparent_1px),linear-gradient(to_bottom,#ffffff10_1px,transparent_1px)] bg-size-[32px_32px]" />
@@ -66,7 +66,7 @@ export function CTASection({ settings }: CTASectionProps) {
                             <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.98 }}>
                                 <Button
                                     size="lg"
-                                    className="group h-14 bg-white px-8 font-bold text-cyan-600 shadow-xl shadow-cyan-900/20 hover:bg-white hover:shadow-2xl"
+                                    className="group h-14 bg-primary px-8 font-bold text-white shadow-xl shadow-orange-900/20 hover:bg-primary/90 hover:shadow-2xl"
                                 >
                                     {data.primary_button}
                                     <ArrowRight className="ml-2 size-5 transition-transform group-hover:translate-x-1" />

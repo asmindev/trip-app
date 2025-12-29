@@ -24,15 +24,15 @@ export function Marquee({
     return (
         <div
             className={cn(
-                'group flex overflow-hidden [--gap:1rem] [mask-image:linear-gradient(to_right,transparent,white_20%,white_80%,transparent)]',
+                'group flex overflow-hidden [--gap:1rem] mask-[linear-gradient(to_right,transparent,white_20%,white_80%,transparent)] py-6',
                 className
             )}
         >
             <div
                 className={cn(
                     'flex animate-marquee items-center gap-[--gap]',
-                    pauseOnHover && 'group-hover:[animation-play-state:paused]',
-                    reverse && '[animation-direction:reverse]'
+                    pauseOnHover && 'group-hover:paused',
+                    reverse && 'direction-[reverse]'
                 )}
                 style={{ animationDuration: speedMap[speed] }}
             >
@@ -41,8 +41,8 @@ export function Marquee({
             <div
                 className={cn(
                     'flex animate-marquee items-center gap-[--gap]',
-                    pauseOnHover && 'group-hover:[animation-play-state:paused]',
-                    reverse && '[animation-direction:reverse]'
+                    pauseOnHover && 'group-hover:paused',
+                    reverse && 'direction-[reverse]'
                 )}
                 aria-hidden="true"
                 style={{ animationDuration: speedMap[speed] }}

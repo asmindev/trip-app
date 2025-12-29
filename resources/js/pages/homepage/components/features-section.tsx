@@ -78,7 +78,7 @@ export function FeaturesSection({ features }: FeaturesSectionProps) {
         : defaultFeatures;
 
     return (
-        <section id="fitur" className="bg-slate-50 py-24 lg:py-32 dark:bg-slate-900/50">
+        <section id="fitur" className="bg-orange-50/30 py-24 lg:py-32 dark:bg-slate-900/50">
             <div className="container mx-auto px-6">
                 {/* Header */}
                 <div className="mb-16 text-center">
@@ -94,7 +94,8 @@ export function FeaturesSection({ features }: FeaturesSectionProps) {
                         transition={{ delay: 0.1 }}
                         className="mb-4 text-3xl font-black tracking-tight text-slate-900 md:text-4xl lg:text-5xl dark:text-white"
                     >
-                        Mengapa Memilih <span className="bg-linear-to-r from-cyan-600 to-teal-500 bg-clip-text text-transparent">Kami?</span>
+                        Mengapa Memilih{' '}
+                        <span className="bg-linear-to-r from-primary via-orange-500 to-orange-400 bg-clip-text text-transparent">Kami?</span>
                     </motion.h2>
                     <motion.p
                         initial={{ opacity: 0, y: 20 }}
@@ -123,12 +124,12 @@ export function FeaturesSection({ features }: FeaturesSectionProps) {
                             <motion.div
                                 key={idx}
                                 variants={itemVariants}
-                                className={`group relative overflow-hidden rounded-3xl border border-slate-200 bg-white p-6 transition-all duration-300 hover:border-cyan-200 hover:shadow-xl hover:shadow-cyan-500/10 dark:border-slate-700 dark:bg-slate-800 dark:hover:border-cyan-700 ${
+                                className={`group relative overflow-hidden rounded-3xl border border-slate-200 bg-white p-6 transition-all duration-300 hover:border-orange-200 hover:shadow-xl hover:shadow-orange-500/10 dark:border-slate-700 dark:bg-slate-800 dark:hover:border-orange-700 ${
                                     isLarge ? 'md:col-span-2' : ''
                                 }`}
                             >
                                 {/* Background decoration */}
-                                <div className="absolute -top-12 -right-12 size-32 rounded-full bg-linear-to-br from-cyan-500/10 to-teal-500/10 transition-transform duration-500 group-hover:scale-150" />
+                                <div className="absolute -top-12 -right-12 size-32 rounded-full bg-linear-to-br from-blue-500/10 to-orange-500/10 transition-transform duration-500 group-hover:scale-150" />
 
                                 <div className={`relative ${isLarge ? 'md:flex md:items-center md:gap-6' : ''}`}>
                                     {/* Visual Area (for large cards) */}
@@ -147,11 +148,11 @@ export function FeaturesSection({ features }: FeaturesSectionProps) {
                                                 </div>
                                             )}
                                             {feature.visual === 'map' && (
-                                                <div className="relative size-full overflow-hidden rounded-2xl bg-linear-to-br from-cyan-100 to-blue-100 dark:from-cyan-900/30 dark:to-blue-900/30">
-                                                    <div className="absolute top-1/3 left-1/4 size-3 animate-pulse rounded-full bg-cyan-500" />
+                                                <div className="relative size-full overflow-hidden rounded-2xl bg-linear-to-br from-blue-100 to-blue-100 dark:from-blue-900/30 dark:to-blue-900/30">
+                                                    <div className="absolute top-1/3 left-1/4 size-3 animate-pulse rounded-full bg-primary" />
                                                     <div className="absolute top-1/2 left-1/2 size-2 rounded-full bg-cyan-400" />
                                                     <div
-                                                        className="absolute right-1/4 bottom-1/3 size-3 animate-pulse rounded-full bg-teal-500"
+                                                        className="absolute right-1/4 bottom-1/3 size-3 animate-pulse rounded-full bg-primary"
                                                         style={{ animationDelay: '0.5s' }}
                                                     />
                                                     <svg className="absolute inset-0 size-full opacity-20" viewBox="0 0 100 100">
@@ -161,7 +162,7 @@ export function FeaturesSection({ features }: FeaturesSectionProps) {
                                                             strokeWidth="2"
                                                             fill="none"
                                                             strokeDasharray="4"
-                                                            className="text-cyan-600"
+                                                            className="text-primary"
                                                         />
                                                     </svg>
                                                 </div>
@@ -172,7 +173,7 @@ export function FeaturesSection({ features }: FeaturesSectionProps) {
                                     {/* Content */}
                                     <div className="flex-1">
                                         {/* Icon */}
-                                        <div className="mb-4 inline-flex size-12 items-center justify-center rounded-2xl bg-linear-to-br from-cyan-500 to-teal-500 text-white shadow-lg shadow-cyan-500/25 transition-transform duration-300 group-hover:scale-110">
+                                        <div className="mb-4 inline-flex size-12 items-center justify-center rounded-2xl bg-linear-to-br from-primary via-orange-500 to-orange-400 text-white shadow-lg shadow-orange-500/25 transition-transform duration-300 group-hover:scale-110">
                                             <Icon className="size-5" />
                                         </div>
 

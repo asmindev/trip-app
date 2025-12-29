@@ -5,47 +5,75 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Setting;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
 
 class SettingController extends Controller
 {
+    /**
+     * Tampilkan halaman pengaturan yang dikelompokkan.
+     */
     public function index()
     {
-        $settings = Setting::orderBy('group')->orderBy('id')->get()
-            ->groupBy('group')
-            ->map(fn($group) => $group->map(fn($s) => [
-                'id' => $s->id,
-                'key' => $s->key,
-                'label' => $s->label,
-                'value' => $s->formatted_value,
-                'type' => $s->type,
-            ]));
+        $settings = Setting::orderBy('group')->get()
+            ->map(function ($setting) {
+                if ($setting->type === 'image' && $setting->value) {
+                    $setting->value = Storage::url($setting->value);
+                }
+                return $setting;
+            })
+            ->groupBy('group');
 
         return Inertia::render('admin/settings/index/page', [
-            'settings' => $settings,
+            'groupedSettings' => $settings,
         ]);
     }
 
+    /**
+     * Update pengaturan secara massal.
+     */
     public function update(Request $request)
     {
-        $request->validate([
-            'settings' => 'required|array',
-            'settings.*.id' => 'required|exists:settings,id',
-            'settings.*.value' => 'required',
-        ]);
+        // Request format: { settings: { key: value, ... } }
+        // Request format: { settings: { key: value, ... } }
+        // Use all() to ensure files are included (request->input() excludes files)
+        $data = $request->all();
+        $inputs = $data['settings'] ?? [];
 
-        foreach ($request->settings as $data) {
-            $setting = Setting::find($data['id']);
-            $value = $setting->type === 'json'
-                ? (is_string($data['value']) ? $data['value'] : json_encode($data['value']))
-                : $data['value'];
+        foreach ($inputs as $key => $value) {
+            $setting = Setting::where('key', $key)->first();
 
-            $setting->update([
-                'value' => $value,
-                'updated_by' => auth()->id(),
-            ]);
+            if (!$setting) continue;
+
+            if ($setting->type === 'image') {
+                if ($request->hasFile("settings.$key")) {
+                    // Delete old image
+                    if ($setting->value) {
+                        Storage::disk('public')->delete($setting->value);
+                    }
+
+                    // Store new image in public/settings
+                    $path = $request->file("settings.$key")->store('settings', 'public');
+                    $setting->value = $path;
+                }
+                // Skip updating if no new file is provided (prevents overwriting path with URL string)
+            } else {
+                // Handle JSON or simple text
+                $setting->value = $setting->type === 'json' && !is_string($value)
+                    ? json_encode($value)
+                    : $value;
+            }
+
+            if ($setting->isDirty()) {
+                $setting->updated_by = auth()->id();
+                $setting->save();
+            }
         }
 
-        return redirect()->back()->with('success', 'Pengaturan berhasil disimpan.');
+        // IMPORTANT: Clear cache
+        Cache::forget('global_settings');
+
+        return redirect()->back()->with('success', 'Pengaturan berhasil diperbarui.');
     }
 }

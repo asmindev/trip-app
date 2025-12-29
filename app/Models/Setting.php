@@ -14,13 +14,13 @@ class Setting extends Model
     }
 
     // Helper untuk mengambil value dengan tipe data yang benar
-    // Contoh penggunaan: Setting::find(1)->formatted_value
     public function getFormattedValueAttribute()
     {
         return match ($this->type) {
             'boolean' => (bool) $this->value,
             'number' => (float) $this->value,
             'json' => json_decode($this->value, true),
+            'image' => $this->value ? \Illuminate\Support\Facades\Storage::url($this->value) : null,
             default => $this->value,
         };
     }

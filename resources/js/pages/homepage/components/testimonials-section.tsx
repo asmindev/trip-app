@@ -41,11 +41,11 @@ export function TestimonialsSection({ testimonials }: TestimonialsSectionProps) 
     const data = testimonials || defaultTestimonials;
 
     return (
-        <section className="overflow-hidden bg-slate-50 py-24 lg:py-32 dark:bg-slate-900/50">
+        <section className="overflow-hidden bg-orange-50/30 py-24 lg:py-32 dark:bg-slate-900/50">
             <div className="container mx-auto mb-12 px-6">
                 <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center">
                     <h2 className="mb-4 text-3xl font-black tracking-tight text-slate-900 md:text-4xl dark:text-white">
-                        Kata <span className="bg-linear-to-r from-cyan-600 to-teal-500 bg-clip-text text-transparent">Mereka</span>
+                        Kata <span className="bg-linear-to-r from-primary via-orange-500 to-orange-400 bg-clip-text text-transparent">Mereka</span>
                     </h2>
                     <p className="text-slate-600 dark:text-slate-400">Ribuan traveler sudah mempercayakan perjalanannya kepada kami</p>
                 </motion.div>
@@ -55,12 +55,12 @@ export function TestimonialsSection({ testimonials }: TestimonialsSectionProps) 
                 {data.map((t, idx) => (
                     <div
                         key={idx}
-                        className="mx-3 w-[320px] rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition-all duration-300 hover:border-cyan-200 hover:shadow-lg dark:border-slate-700 dark:bg-slate-800 dark:hover:border-cyan-700"
+                        className="mx-3 w-[320px] rounded-2xl border border-slate-200 bg-white p-6 transition-all duration-300 hover:border-orange-200 hover:shadow-lg dark:border-slate-700 dark:bg-slate-800 dark:hover:border-orange-700"
                     >
                         {/* Stars */}
                         <div className="mb-4 flex gap-1">
                             {[...Array(5)].map((_, i) => (
-                                <Star key={i} className="size-4 fill-amber-400 text-amber-400" />
+                                <Star key={i} className="size-4 fill-primary text-primary" />
                             ))}
                         </div>
 

@@ -2,7 +2,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Link } from '@inertiajs/react';
-import { Anchor, ArrowRight, CalendarIcon, MapPin, Search, Sparkles, Star, Users } from 'lucide-react';
+import { ArrowRight, CalendarIcon, Search, Sparkles, Star, Users } from 'lucide-react';
 import { motion } from 'motion/react';
 import { useState } from 'react';
 import { route } from 'ziggy-js';
@@ -12,6 +12,8 @@ interface HeroSettings {
     headline: string;
     subheadline: string;
     stats: Array<{ value: string; label: string }>;
+    image?: string;
+    cta_text?: string;
 }
 
 interface HeroSectionProps {
@@ -27,6 +29,7 @@ const defaultSettings: HeroSettings = {
         { value: '4.9', label: 'Rating Pengguna' },
         { value: '15+', label: 'Rute Tersedia' },
     ],
+    cta_text: 'Cari Jadwal',
 };
 
 export function HeroSection({ settings }: HeroSectionProps) {
@@ -34,16 +37,32 @@ export function HeroSection({ settings }: HeroSectionProps) {
     const [tripType, setTripType] = useState('oneway');
 
     return (
-        <section className="relative overflow-hidden">
-            {/* Background with gradient overlay */}
+        <section className="relative min-h-[90vh] overflow-hidden">
+            {/* Background with BOLD Orange gradient - Light/Dark optimized */}
             <div className="absolute inset-0">
-                {/* Ocean gradient background */}
-                <div className="absolute inset-0 bg-linear-to-br from-cyan-400 via-teal-500 to-blue-600" />
-                {/* Mesh gradient overlay */}
-                <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,var(--tw-gradient-stops))] from-cyan-300/40 via-transparent to-transparent" />
-                <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_left,var(--tw-gradient-stops))] from-blue-400/30 via-transparent to-transparent" />
-                {/* Dark overlay for text readability */}
-                <div className="absolute inset-0 bg-linear-to-t from-slate-900/80 via-slate-900/40 to-slate-900/20" />
+                {/* BOLD Orange gradient - Brighter for light mode */}
+                <div className="absolute inset-0 bg-linear-to-br from-orange-500 via-orange-600 to-orange-800 dark:from-orange-600 dark:via-orange-700 dark:to-slate-900" />
+
+                {/* Optional Hero Image with Overlay */}
+                {data.image && (
+                    <div className="absolute inset-0 z-0">
+                        <img src={data.image} alt="" className="h-full w-full object-cover opacity-10 mix-blend-overlay" />
+                        <div className="absolute inset-0 bg-linear-to-t from-orange-950/80 via-transparent to-orange-900/20" />
+                    </div>
+                )}
+
+                {/* Vibrant Orange mesh overlays - Optimized for light mode */}
+                <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_left,var(--tw-gradient-stops))] from-orange-300/70 via-orange-400/40 to-transparent dark:from-orange-400/60 dark:via-orange-500/30 dark:to-transparent" />
+                <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_bottom_right,var(--tw-gradient-stops))] from-yellow-400/40 via-orange-500/30 to-transparent dark:from-orange-500/50 dark:via-slate-800/40 dark:to-transparent" />
+
+                {/* Large Orange glow spots - Enhanced for light mode */}
+                <div className="absolute -top-20 -right-20 size-[600px] rounded-full bg-yellow-300/40 blur-3xl dark:bg-orange-500/30" />
+                <div className="absolute top-1/3 left-0 size-[500px] rounded-full bg-orange-400/35 blur-3xl dark:bg-primary/25" />
+                <div className="absolute right-1/4 bottom-0 size-[400px] rounded-full bg-orange-500/30 blur-3xl dark:bg-orange-600/20" />
+
+                {/* Light overlay - lighter for light mode, darker for dark mode */}
+                <div className="absolute inset-0 bg-linear-to-t from-orange-900/40 via-orange-800/20 to-transparent dark:from-slate-900/60 dark:via-slate-900/30 dark:to-transparent" />
+
                 {/* Animated wave pattern */}
                 <div className="absolute inset-0 opacity-10">
                     <svg className="absolute bottom-0 h-64 w-full" viewBox="0 0 1440 320" preserveAspectRatio="none">
@@ -66,24 +85,26 @@ export function HeroSection({ settings }: HeroSectionProps) {
                         transition={{ duration: 0.6 }}
                         className="mb-8 inline-flex items-center gap-2"
                     >
-                        <Badge className="rounded-full border-white/20 bg-white/10 px-4 py-2 text-white backdrop-blur-md hover:bg-white/20">
+                        <Badge className="rounded-full border-orange-400/30 bg-primary/20 px-4 py-2 text-white shadow-lg shadow-orange-500/25 backdrop-blur-md hover:bg-primary/30">
                             <span className="relative mr-2 flex size-2">
-                                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-green-400 opacity-75" />
-                                <span className="relative inline-flex size-2 rounded-full bg-green-400" />
+                                <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-orange-400 opacity-75" />
+                                <span className="relative inline-flex size-2 rounded-full bg-orange-400" />
                             </span>
                             <span className="text-xs font-medium">{data.badge}</span>
-                            <Sparkles className="ml-2 size-3 text-amber-300" />
+                            <Sparkles className="ml-2 size-3 text-orange-300" />
                         </Badge>
                     </motion.div>
 
-                    {/* Main Headline */}
+                    {/* Main Headline - BOLD ORANGE */}
                     <motion.h1
                         initial={{ opacity: 0, y: 30 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.6, delay: 0.1 }}
-                        className="mb-6 text-5xl leading-[1.1] font-extrabold tracking-tighter text-white md:text-6xl lg:text-7xl"
+                        className="mb-6 text-5xl leading-[1.1] font-extrabold tracking-tighter md:text-6xl lg:text-7xl"
                     >
-                        {data.headline}
+                        <span className="bg-linear-to-r from-orange-200 via-orange-100 to-white bg-clip-text text-transparent drop-shadow-[0_0_30px_rgba(249,115,22,0.3)]">
+                            {data.headline}
+                        </span>
                     </motion.h1>
 
                     {/* Subtitle */}
@@ -91,7 +112,7 @@ export function HeroSection({ settings }: HeroSectionProps) {
                         initial={{ opacity: 0, y: 30 }}
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.6, delay: 0.2 }}
-                        className="mx-auto mb-12 max-w-2xl text-lg text-slate-200 md:text-xl"
+                        className="mx-auto mb-12 max-w-2xl text-lg text-orange-50 md:text-xl"
                     >
                         {data.subheadline}
                     </motion.p>
@@ -104,12 +125,20 @@ export function HeroSection({ settings }: HeroSectionProps) {
                         className="mx-auto mb-8 grid max-w-lg grid-cols-3 gap-4 md:mb-16 md:gap-8"
                     >
                         {data.stats.map((stat, idx) => (
-                            <div key={idx} className="text-center">
-                                <div className="text-3xl font-black text-white md:text-4xl">
-                                    {stat.value}
-                                    {stat.label === 'Rating Pengguna' && <Star className="ml-1 inline size-5 fill-amber-400 text-amber-400" />}
+                            <div
+                                key={idx}
+                                className="group relative rounded-2xl border border-orange-500/20 bg-orange-500/10 p-4 text-center backdrop-blur-sm transition-all hover:border-orange-500/40 hover:bg-orange-500/20"
+                            >
+                                {/* Orange glow on hover */}
+                                <div className="absolute inset-0 rounded-2xl bg-primary/0 opacity-0 blur-xl transition-all group-hover:bg-primary/20 group-hover:opacity-100" />
+
+                                <div className="relative">
+                                    <div className="text-3xl font-black text-white md:text-4xl">
+                                        {stat.value}
+                                        {stat.label === 'Rating Pengguna' && <Star className="ml-1 inline size-5 fill-primary text-primary" />}
+                                    </div>
+                                    <div className="mt-1 text-sm text-orange-200">{stat.label}</div>
                                 </div>
-                                <div className="mt-1 text-sm text-slate-300">{stat.label}</div>
                             </div>
                         ))}
                     </motion.div>
@@ -138,39 +167,21 @@ export function HeroSection({ settings }: HeroSectionProps) {
                         </Tabs>
 
                         {/* Form Grid - Visual only, links to booking page */}
-                        <div className="grid gap-4 md:grid-cols-4 lg:gap-6">
-                            {/* Origin */}
-                            <div className="space-y-2">
-                                <label className="text-sm font-medium text-slate-600 dark:text-slate-300">Dari</label>
-                                <div className="relative flex h-14 items-center rounded-xl border border-slate-200 bg-slate-50 px-4 dark:border-slate-700 dark:bg-slate-800">
-                                    <MapPin className="size-5 text-cyan-600 dark:text-cyan-400" />
-                                    <span className="ml-3 text-sm text-muted-foreground">Pilih asal</span>
-                                </div>
-                            </div>
-
-                            {/* Destination */}
-                            <div className="space-y-2">
-                                <label className="text-sm font-medium text-slate-600 dark:text-slate-300">Ke</label>
-                                <div className="relative flex h-14 items-center rounded-xl border border-slate-200 bg-slate-50 px-4 dark:border-slate-700 dark:bg-slate-800">
-                                    <Anchor className="size-5 text-cyan-600 dark:text-cyan-400" />
-                                    <span className="ml-3 text-sm text-muted-foreground">Pilih tujuan</span>
-                                </div>
-                            </div>
-
+                        <div className="grid gap-4 md:grid-cols-2 lg:gap-6">
                             {/* Date */}
                             <div className="space-y-2">
-                                <label className="text-sm font-medium text-slate-600 dark:text-slate-300">Tanggal</label>
+                                <label className="text-sm font-medium text-slate-600 dark:text-slate-300">Tanggal Keberangkatan</label>
                                 <div className="relative flex h-14 items-center rounded-xl border border-slate-200 bg-slate-50 px-4 dark:border-slate-700 dark:bg-slate-800">
-                                    <CalendarIcon className="size-5 text-cyan-600 dark:text-cyan-400" />
+                                    <CalendarIcon className="size-5 text-primary" />
                                     <span className="ml-3 text-sm text-muted-foreground">Pilih tanggal</span>
                                 </div>
                             </div>
 
                             {/* Passengers */}
                             <div className="space-y-2">
-                                <label className="text-sm font-medium text-slate-600 dark:text-slate-300">Penumpang</label>
+                                <label className="text-sm font-medium text-slate-600 dark:text-slate-300">Jumlah Penumpang</label>
                                 <div className="relative flex h-14 items-center rounded-xl border border-slate-200 bg-slate-50 px-4 dark:border-slate-700 dark:bg-slate-800">
-                                    <Users className="size-5 text-cyan-600 dark:text-cyan-400" />
+                                    <Users className="size-5 text-primary" />
                                     <span className="ml-3 text-sm font-medium text-slate-900 dark:text-white">1 Orang</span>
                                 </div>
                             </div>
@@ -181,10 +192,10 @@ export function HeroSection({ settings }: HeroSectionProps) {
                             <Link href={route('booking.index')} className="block">
                                 <Button
                                     size="lg"
-                                    className="group h-14 w-full bg-linear-to-r from-amber-500 to-orange-500 text-base font-bold text-white shadow-lg shadow-amber-500/25 transition-all hover:scale-[1.02] hover:shadow-xl hover:shadow-amber-500/30"
+                                    className="group h-14 w-full bg-primary text-base font-bold text-white shadow-lg shadow-orange-500/25 transition-all hover:scale-[1.02] hover:bg-primary/90 hover:shadow-xl hover:shadow-orange-500/30"
                                 >
                                     <Search className="mr-2 size-5" />
-                                    Cari Jadwal
+                                    {data.cta_text || 'Cari Jadwal'}
                                     <ArrowRight className="ml-2 size-5 transition-transform group-hover:translate-x-1" />
                                 </Button>
                             </Link>

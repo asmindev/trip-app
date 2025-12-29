@@ -106,8 +106,6 @@ class RolesAndPermissionsSeeder extends Seeder
             'users.assign-branch',
             'settings.view',
             'settings.update',
-            'settings.view',
-            'settings.update',
             'audit-logs.view',
 
             // Roles & Permissions

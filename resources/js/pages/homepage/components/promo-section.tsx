@@ -1,15 +1,19 @@
 import { Button } from '@/components/ui/button';
+import { usePage } from '@inertiajs/react';
 import { Apple, Play, Smartphone } from 'lucide-react';
 import { motion } from 'motion/react';
 
 export function PromoSection() {
+    const { props } = usePage();
+    const settings = props.app_settings as { app_name?: string } | undefined;
+    const appName = settings?.app_name || 'Kapal Trip';
     return (
         <section className="relative overflow-hidden bg-slate-900 py-24 lg:py-32">
             {/* Background decorations */}
             <div className="absolute inset-0">
                 <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff08_1px,transparent_1px),linear-gradient(to_bottom,#ffffff08_1px,transparent_1px)] bg-size-[40px_40px]" />
-                <div className="absolute top-0 right-0 size-96 rounded-full bg-cyan-500/10 blur-3xl" />
-                <div className="absolute bottom-0 left-0 size-96 rounded-full bg-teal-500/10 blur-3xl" />
+                <div className="absolute top-0 right-0 size-96 rounded-full bg-primary/10 blur-3xl" />
+                <div className="absolute bottom-0 left-0 size-96 rounded-full bg-primary/10 blur-3xl" />
             </div>
 
             <div className="relative container mx-auto px-6">
@@ -22,10 +26,10 @@ export function PromoSection() {
                         className="text-center lg:text-left"
                     >
                         <h2 className="mb-6 text-3xl font-black tracking-tight text-white md:text-4xl lg:text-5xl">
-                            Siap <span className="bg-linear-to-r from-cyan-400 to-teal-400 bg-clip-text text-transparent">Berlayar?</span>
+                            Siap <span className="bg-linear-to-r from-blue-400 to-orange-400 bg-clip-text text-transparent">Berlayar?</span>
                         </h2>
                         <p className="mb-8 text-lg leading-relaxed text-slate-400">
-                            Download aplikasi Kapal Trip dan nikmati kemudahan booking tiket kapal dimanapun dan kapanpun. Dapatkan notifikasi promo
+                            Download aplikasi {appName} dan nikmati kemudahan booking tiket kapal dimanapun dan kapanpun. Dapatkan notifikasi promo
                             eksklusif dan akses fitur premium.
                         </p>
 
@@ -33,7 +37,7 @@ export function PromoSection() {
                         <div className="flex flex-col gap-4 sm:flex-row sm:justify-center lg:justify-start">
                             <Button
                                 size="lg"
-                                className="group h-14 gap-3 rounded-xl bg-white px-6 text-slate-900 transition-all hover:scale-105 hover:bg-white hover:shadow-xl"
+                                className="group h-14 gap-3 rounded-xl bg-white px-6 text-slate-900 transition-all hover:scale-105 hover:bg-white hover:shadow-xl hover:shadow-orange-500/10"
                             >
                                 <Apple className="size-6" />
                                 <div className="text-left">
@@ -83,7 +87,7 @@ export function PromoSection() {
                         {/* Phone Frame */}
                         <div className="relative">
                             {/* Glow effects */}
-                            <div className="absolute -inset-10 rounded-full bg-linear-to-r from-cyan-500/30 to-teal-500/30 blur-3xl" />
+                            <div className="absolute -inset-10 rounded-full bg-linear-to-r from-blue-500/30 to-orange-500/30 blur-3xl" />
 
                             {/* Phone */}
                             <div className="relative h-[500px] w-[250px] overflow-hidden rounded-[40px] border-8 border-slate-700 bg-slate-800 shadow-2xl">
@@ -91,14 +95,14 @@ export function PromoSection() {
                                 <div className="absolute top-2 left-1/2 z-10 h-6 w-24 -translate-x-1/2 rounded-full bg-slate-900" />
 
                                 {/* Screen Content */}
-                                <div className="h-full w-full bg-linear-to-b from-cyan-500/20 to-slate-900 p-4 pt-12">
+                                <div className="h-full w-full bg-linear-to-b from-blue-500/20 to-slate-900 p-4 pt-12">
                                     {/* App Header */}
                                     <div className="mb-6 flex items-center justify-between">
                                         <div className="flex items-center gap-2">
-                                            <div className="flex size-8 items-center justify-center rounded-lg bg-linear-to-br from-cyan-500 to-teal-500">
+                                            <div className="flex size-8 items-center justify-center rounded-lg bg-linear-to-br from-blue-500 to-orange-500">
                                                 <Smartphone className="size-4 text-white" />
                                             </div>
-                                            <span className="font-bold text-white">Kapal Trip</span>
+                                            <span className="font-bold text-white">{appName}</span>
                                         </div>
                                     </div>
 
@@ -107,14 +111,14 @@ export function PromoSection() {
                                         <div className="rounded-2xl bg-white/10 p-4 backdrop-blur">
                                             <div className="mb-2 text-xs text-slate-400">Pesanan Aktif</div>
                                             <div className="mb-1 font-semibold text-white">Kendari → Labengki</div>
-                                            <div className="text-sm text-cyan-400">30 Des 2024 • 08:00</div>
+                                            <div className="text-sm text-primary">30 Des 2024 • 08:00</div>
                                         </div>
 
-                                        <div className="rounded-2xl bg-linear-to-r from-cyan-500/20 to-teal-500/20 p-4">
+                                        <div className="rounded-2xl bg-linear-to-r from-blue-500/20 to-orange-500/20 p-4">
                                             <div className="mb-2 text-xs text-slate-400">Promo Spesial</div>
                                             <div className="mb-1 font-bold text-white">Tahun Baru 2025</div>
                                             <div className="flex items-center gap-2">
-                                                <span className="rounded-full bg-amber-500/20 px-2 py-0.5 text-xs font-semibold text-amber-400">
+                                                <span className="rounded-full bg-amber-500/20 px-2 py-0.5 text-xs font-semibold text-primary">
                                                     20% OFF
                                                 </span>
                                             </div>

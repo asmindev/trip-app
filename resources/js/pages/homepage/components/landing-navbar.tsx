@@ -1,7 +1,7 @@
 import { ThemeToggle } from '@/components/theme-toggle';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
-import { Link } from '@inertiajs/react';
+import { Link, usePage } from '@inertiajs/react';
 import { Menu, Ship, X } from 'lucide-react';
 import { AnimatePresence, motion } from 'motion/react';
 import { useEffect, useState } from 'react';
@@ -14,7 +14,15 @@ const navLinks = [
     { name: 'Cek Pesanan', href: '#' },
 ];
 
+interface NavbarSettings {
+    app_name?: string;
+    app_logo?: string;
+}
+
 export function LandingNavbar() {
+    const { props } = usePage();
+    const settings = (props.app_settings as NavbarSettings) || {};
+    const appName = settings.app_name || 'Kapal Trip';
     const [isOpen, setIsOpen] = useState(false);
     const [isScrolled, setIsScrolled] = useState(false);
 
@@ -40,9 +48,13 @@ export function LandingNavbar() {
                 <Link href={route('home')} className="group flex items-center gap-3">
                     <motion.div
                         whileHover={{ scale: 1.05, rotate: 3 }}
-                        className="relative flex size-11 items-center justify-center rounded-xl bg-linear-to-br from-cyan-500 to-teal-500 shadow-lg shadow-cyan-500/25"
+                        className="relative flex size-11 items-center justify-center rounded-xl bg-linear-to-br from-blue-500 to-orange-500 shadow-lg shadow-cyan-500/25"
                     >
-                        <Ship className="size-5 text-white" />
+                        {settings.app_logo ? (
+                            <img src={settings.app_logo} alt={appName} className="size-6 object-contain brightness-0 invert" />
+                        ) : (
+                            <Ship className="size-5 text-white" />
+                        )}
                     </motion.div>
                     <div className="flex flex-col">
                         <span
@@ -51,7 +63,7 @@ export function LandingNavbar() {
                                 isScrolled ? 'text-slate-900 dark:text-white' : 'text-white',
                             )}
                         >
-                            Kapal Trip
+                            {appName}
                         </span>
                     </div>
                 </Link>
@@ -70,7 +82,7 @@ export function LandingNavbar() {
                             )}
                         >
                             {item.name}
-                            <span className="absolute inset-x-4 -bottom-0.5 h-0.5 origin-left scale-x-0 rounded-full bg-linear-to-r from-cyan-500 to-teal-500 transition-transform group-hover:scale-x-100" />
+                            <span className="absolute inset-x-4 -bottom-0.5 h-0.5 origin-left scale-x-0 rounded-full bg-linear-to-r from-blue-500 to-orange-500 transition-transform group-hover:scale-x-100" />
                         </a>
                     ))}
                 </nav>
@@ -99,7 +111,7 @@ export function LandingNavbar() {
                     <Link href={route('register')}>
                         <Button
                             size="sm"
-                            className="rounded-full bg-cyan-600 px-5 font-semibold shadow-lg shadow-cyan-600/25 transition-all hover:scale-105 hover:bg-cyan-700 hover:shadow-xl"
+                            className="rounded-full bg-primary px-5 font-semibold shadow-lg shadow-cyan-600/25 transition-all hover:scale-105 hover:bg-primary/700 hover:shadow-xl hover:shadow-orange-500/10"
                         >
                             Daftar
                         </Button>
@@ -137,7 +149,7 @@ export function LandingNavbar() {
                                     {item.name}
                                 </a>
                             ))}
-                            <div className="mt-4 border-t border-slate-200 pt-4 dark:border-slate-700">
+                            <div className="mt-4 border-t border-slate-200 pt-4 hover:border-orange-100 dark:border-slate-700">
                                 <Link href={route('login')}>
                                     <Button variant="outline" className="w-full">
                                         Masuk

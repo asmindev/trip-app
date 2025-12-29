@@ -11,8 +11,8 @@ return new class extends Migration
         Schema::create('settings', function (Blueprint $table) {
             $table->id();
 
-            // Key unik untuk dipanggil di kodingan. Contoh: 'booking_timeout'
-            $table->string('key')->unique();
+            // Key unik untuk dipanggil di kodingan. Contoh: 'app_name'
+            $table->string('key')->unique()->index();
 
             // Label yang muncul di halaman Admin
             $table->string('label');
@@ -20,10 +20,10 @@ return new class extends Migration
             // Value disimpan sebagai text, nanti dicasting di Model
             $table->text('value')->nullable();
 
-            // Tipe datanya apa? (text, number, boolean, json)
+            // Tipe datanya apa? (text, textarea, image, number, json)
             $table->string('type')->default('text');
 
-            // Pengelompokan setting (General, Payment, Notification)
+            // Pengelompokan setting (general, landing, contact)
             $table->string('group')->default('general');
 
             // Siapa yang terakhir update

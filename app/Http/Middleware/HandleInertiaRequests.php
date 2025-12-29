@@ -50,10 +50,23 @@ class HandleInertiaRequests extends Middleware
             }
         }
 
+        // Fetch settings with caching for high performance
+        $appSettings = \Illuminate\Support\Facades\Cache::rememberForever('global_settings', function () {
+            return \App\Models\Setting::all()->mapWithKeys(function ($setting) {
+                return [$setting->key => $setting->formatted_value];
+            })->toArray();
+        });
+
+        // Ensure app_name fallback for layout
+        if (!isset($appSettings['app_name'])) {
+            $appSettings['app_name'] = config('app.name', 'Kapal Trip');
+        }
+
         return [
             ...parent::share($request),
 
-            'name' => config('app.name'),
+            'app_settings' => $appSettings,
+            'name' => $appSettings['app_name'] ?? config('app.name'),
             'sidebarOpen' => $request->cookie('sidebar_state', 'true') === 'true',
             'auth' => [
                 'user' => $user ? [

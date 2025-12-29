@@ -1,36 +1,27 @@
-import { Head } from '@inertiajs/react';
+import AppLayout from '@/layouts/app-layout';
+import { Head, usePage } from '@inertiajs/react';
 import { CTASection } from './components/cta-section';
 import { FeaturesSection } from './components/features-section';
 import { HeroSection } from './components/hero-section';
-import { LandingFooter } from './components/landing-footer';
-import { LandingNavbar } from './components/landing-navbar';
 import { PopularRoutesSection } from './components/popular-routes-section';
-import { SocialProofSection } from './components/social-proof-section';
 import { TestimonialsSection } from './components/testimonials-section';
 
-export interface HomepageSettings {
-    homepage_hero?: {
-        badge: string;
-        headline: string;
-        subheadline: string;
-        stats: Array<{ value: string; label: string }>;
-    };
-    homepage_features?: Array<{
-        icon: string;
-        title: string;
-        description: string;
-    }>;
-    homepage_testimonials?: Array<{
-        name: string;
-        text: string;
-        avatar: string;
-    }>;
-    homepage_cta?: {
+interface AppSettings {
+    app_name?: string;
+    hero_badge?: string;
+    hero_title?: string;
+    hero_subtitle?: string;
+    hero_stats?: Array<{ value: string; label: string }>;
+    landing_features?: Array<{ icon: string; title: string; description: string; span?: number; visual?: boolean }>;
+    landing_testimonials?: Array<{ name: string; text: string; avatar: string }>;
+    landing_cta?: {
         headline: string;
         subheadline: string;
         primary_button: string;
         secondary_button: string;
     };
+    hero_image?: string;
+    hero_cta_text?: string;
 }
 
 export interface TripRoute {
@@ -40,26 +31,43 @@ export interface TripRoute {
 }
 
 interface WelcomeProps {
-    settings?: HomepageSettings;
     routes?: TripRoute[];
 }
 
-export default function Welcome({ settings = {}, routes = [] }: WelcomeProps) {
-    return (
-        <>
-            <Head title="Kapal Trip - Jelajahi Nusantara Tanpa Batas" />
+export default function Welcome({ routes = [] }: WelcomeProps) {
+    const { props } = usePage();
+    const app_settings = (props.app_settings as unknown as AppSettings) || {};
+    const appName = app_settings.app_name || 'Kapal Trip';
 
-            <div className="min-h-screen bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-50">
-                <LandingNavbar />
-                <HeroSection settings={settings.homepage_hero} />
-                <SocialProofSection />
-                <FeaturesSection features={settings.homepage_features} />
-                <PopularRoutesSection routes={routes} />
-                <TestimonialsSection testimonials={settings.homepage_testimonials} />
-                {/* <PromoSection /> */}
-                <CTASection settings={settings.homepage_cta} />
-                <LandingFooter />
-            </div>
+    // Helper functions as requested
+    const getSetting = <T,>(key: keyof AppSettings, defaultValue: T): T => {
+        return (app_settings[key] as T) || defaultValue;
+    };
+
+    const getImage = (key: keyof AppSettings): string | undefined => {
+        const value = app_settings[key];
+        if (!value || typeof value !== 'string') return undefined;
+        return value;
+    };
+
+    const heroSettings = {
+        badge: getSetting('hero_badge', '100+ jadwal tersedia hari ini'),
+        headline: getSetting('hero_title', 'Jelajahi Nusantara Tanpa Batas'),
+        subheadline: getSetting('hero_subtitle', 'Pesan tiket kapal ke pulau-pulau eksotis Indonesia dengan mudah.'),
+        stats: getSetting('hero_stats', []),
+        image: getImage('hero_image'),
+        cta_text: getSetting('hero_cta_text', 'Cari Jadwal'),
+    };
+
+    return (
+        <AppLayout>
+            <Head title={`${appName} - Jelajahi Nusantara Tanpa Batas`} />
+
+            <HeroSection settings={heroSettings} />
+            <FeaturesSection features={getSetting('landing_features', [])} />
+            <PopularRoutesSection routes={routes} />
+            <TestimonialsSection testimonials={getSetting('landing_testimonials', [])} />
+            <CTASection settings={getSetting('landing_cta', undefined)} />
 
             <style>{`
                 @keyframes marquee {
@@ -68,6 +76,6 @@ export default function Welcome({ settings = {}, routes = [] }: WelcomeProps) {
                 }
                 .animate-marquee { animation: marquee linear infinite; }
             `}</style>
-        </>
+        </AppLayout>
     );
 }

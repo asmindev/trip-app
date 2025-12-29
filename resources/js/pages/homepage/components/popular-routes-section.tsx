@@ -14,8 +14,8 @@ interface PopularRoutesSectionProps {
 }
 
 const defaultRoutes = [
-    { id: 1, name: 'Kendari - Labengki', image: '🏝️', duration: '3 Jam', price: 'Rp 150.000', rating: 4.9, color: 'from-cyan-400 to-blue-500' },
-    { id: 2, name: 'Palu - Togean', image: '🌴', duration: '4 Jam', price: 'Rp 200.000', rating: 4.8, color: 'from-teal-400 to-cyan-500' },
+    { id: 1, name: 'Kendari - Labengki', image: '🏝️', duration: '3 Jam', price: 'Rp 150.000', rating: 4.9, color: 'from-blue-400 to-blue-500' },
+    { id: 2, name: 'Palu - Togean', image: '🌴', duration: '4 Jam', price: 'Rp 200.000', rating: 4.8, color: 'from-orange-400 to-blue-500' },
     { id: 3, name: 'Manado - Bunaken', image: '🐠', duration: '2 Jam', price: 'Rp 120.000', rating: 4.9, color: 'from-blue-400 to-indigo-500' },
     { id: 4, name: 'Kendari - Wakatobi', image: '🐚', duration: '5 Jam', price: 'Rp 300.000', rating: 5.0, color: 'from-purple-400 to-pink-500' },
 ];
@@ -65,7 +65,7 @@ export function PopularRoutesSection({ routes }: PopularRoutesSectionProps) {
                         transition={{ delay: 0.1 }}
                         className="mb-4 text-3xl font-black tracking-tight text-slate-900 md:text-4xl lg:text-5xl dark:text-white"
                     >
-                        Destinasi <span className="bg-linear-to-r from-cyan-600 to-teal-500 bg-clip-text text-transparent">Favorit</span>
+                        Destinasi <span className="bg-linear-to-r from-primary via-orange-500 to-orange-400 bg-clip-text text-transparent">Favorit</span>
                     </motion.h2>
                     <motion.p
                         initial={{ opacity: 0, y: 20 }}
@@ -103,7 +103,7 @@ export function PopularRoutesSection({ routes }: PopularRoutesSectionProps) {
 
                                     {/* Rating Badge */}
                                     <div className="absolute top-3 right-3 flex items-center gap-1 rounded-full bg-white/90 px-2 py-1 text-xs font-semibold backdrop-blur-sm">
-                                        <Star className="size-3 fill-amber-400 text-amber-400" />
+                                        <Star className="size-3 fill-primary text-primary" />
                                         <span>{(route as any).rating}</span>
                                     </div>
 
@@ -119,7 +119,7 @@ export function PopularRoutesSection({ routes }: PopularRoutesSectionProps) {
                                 {/* Content */}
                                 <div className="p-5">
                                     <div className="mb-3 flex items-center gap-2 text-sm">
-                                        <MapPin className="size-4 text-cyan-600" />
+                                        <MapPin className="size-4 text-primary" />
                                         <span className="font-semibold text-slate-900 dark:text-white">{from}</span>
                                         <ArrowRight className="size-3 text-slate-400" />
                                         <span className="font-semibold text-slate-900 dark:text-white">{to}</span>
@@ -130,7 +130,7 @@ export function PopularRoutesSection({ routes }: PopularRoutesSectionProps) {
                                             <Clock className="size-4" />
                                             <span>{(route as any).duration}</span>
                                         </div>
-                                        <div className="text-lg font-bold text-cyan-600 dark:text-cyan-400">{(route as any).price}</div>
+                                        <div className="text-lg font-bold text-primary dark:text-primary">{(route as any).price}</div>
                                     </div>
                                 </div>
                             </motion.div>
