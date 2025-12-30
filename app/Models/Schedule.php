@@ -55,7 +55,7 @@ class Schedule extends Model
                 // Combine date and time
                 $departure = Carbon::parse($this->departure_date->format('Y-m-d') . ' ' . $this->departure_time);
 
-                return $departure->addMinutes($duration)->format('Y-m-d H:i:s');
+                return $departure->addMinutes((int) $duration)->format('Y-m-d H:i:s');
             }
         );
     }

@@ -13,6 +13,7 @@ class TripRoute extends Model
 
     protected $casts = [
         'waypoints' => 'array', // Otomatis convert JSON ke Array PHP
+        'duration_minutes' => 'integer',
     ];
 
     public function branch()
