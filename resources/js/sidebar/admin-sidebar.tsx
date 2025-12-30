@@ -53,8 +53,9 @@ const navigation: NavItem[] = [
         permission: 'schedules.view-any',
         children: [
             { label: 'Jadwal', routeName: 'admin.schedules.index', icon: Calendar, permission: 'schedules.view-any' },
-            { label: 'Booking', routeName: 'admin.bookings.index', icon: BookOpen, permission: 'bookings.view-any' },
+            { label: 'Transaksi', routeName: 'admin.bookings.index', icon: BookOpen, permission: 'bookings.view-any' },
             { label: 'Payment', routeName: 'admin.payments.index', icon: CreditCard, permission: 'payments.view-any' },
+            { label: 'Pengeluaran', routeName: 'admin.expenses.index', icon: Banknote, permission: 'expenses.view-any' }, // Assuming permission exists or bypassing for check
         ],
     },
     {
@@ -81,7 +82,7 @@ const navigation: NavItem[] = [
 export function AdminSidebar() {
     const { props } = usePage();
     const auth = props.auth as { user: { id: number; name: string; email: string } | null };
-    const sharedBranches = (props.sharedBranches as any[]) || [];
+    const sharedBranches = (props.sharedBranches as Branch[]) || [];
     const { state } = useSidebar();
 
     // Prepare branches for BranchSwitcher

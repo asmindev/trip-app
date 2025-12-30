@@ -19,6 +19,16 @@ class PaymentController extends Controller
             ->with(['booking.user', 'booking.schedule.ship', 'booking.schedule.route'])
             ->allowedFilters([
                 'external_id',
+                AllowedFilter::callback('q', function ($query, $value) {
+                    $query->where('external_id', 'like', "%{$value}%")
+                          ->orWhere('xendit_id', 'like', "%{$value}%")
+                          ->orWhereHas('booking', function ($q) use ($value) {
+                              $q->where('booking_code', 'like', "%{$value}%")
+                                ->orWhereHas('user', function ($u) use ($value) {
+                                    $u->where('name', 'like', "%{$value}%");
+                                });
+                          });
+                }),
                 AllowedFilter::exact('status'),
                 AllowedFilter::exact('payment_method'),
                 AllowedFilter::scope('date_range'),
@@ -29,7 +39,7 @@ class PaymentController extends Controller
                 'created_at',
             ])
             ->defaultSort('-created_at')
-            ->paginate(15)
+            ->paginate(request('per_page', 15))
             ->withQueryString();
 
         $stats = [
@@ -43,6 +53,7 @@ class PaymentController extends Controller
         return Inertia::render('admin/payments/index/page', [
             'payments' => $payments,
             'stats' => $stats,
+            'filters' => request()->input('filter', []),
         ]);
     }
 

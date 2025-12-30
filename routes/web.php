@@ -42,9 +42,7 @@ Route::middleware('auth')->group(function () {
 
     // --- AREA ADMIN ---
     Route::prefix('admin')->name('admin.')->middleware(['role:admin|super-admin'])->group(function () {
-        Route::get('/dashboard', function () {
-            return Inertia::render('admin/dashboard/index');
-        })->name('dashboard');
+        Route::get('/dashboard', [\App\Http\Controllers\Admin\DashboardController::class, 'index'])->name('dashboard');
 
         // Resource Controller untuk Schedule
         Route::post('schedules/bulk', [ScheduleController::class, 'bulkStore'])->name('schedules.bulk-store');
@@ -64,6 +62,9 @@ Route::middleware('auth')->group(function () {
 
         // Booking Management (Admin)
         Route::resource('bookings', \App\Http\Controllers\Admin\BookingController::class)->only(['index', 'show', 'destroy']);
+
+        // Expense Management
+        Route::resource('expenses', \App\Http\Controllers\Admin\ExpenseController::class);
 
         // Payment Management (Admin) - Xendit Integration
         Route::resource('payments', \App\Http\Controllers\Admin\PaymentController::class)->only(['index', 'show']);

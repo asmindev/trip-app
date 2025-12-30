@@ -4,23 +4,26 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Trash2, UserPlus } from 'lucide-react';
-import { motion } from 'motion/react';
+import { Trash2, UserPlus, Users } from 'lucide-react';
+import { AnimatePresence, motion } from 'motion/react';
 import type { Control } from 'react-hook-form';
 import { useFieldArray, useFormContext } from 'react-hook-form';
+import { toast } from 'sonner';
 import type { Passenger } from '../types';
 
 interface PassengerFormProps {
     control: Control<{ passengers: Passenger[] }>;
     bookerName?: string;
     bookerIdCard?: string;
+    bookerPhone?: string;
 }
 
-export function PassengerForm({ control, bookerName, bookerIdCard }: PassengerFormProps) {
+export function PassengerForm({ control, bookerName, bookerIdCard, bookerPhone }: PassengerFormProps) {
     const {
         register,
         setValue,
         watch,
+        trigger,
         formState: { errors },
     } = useFormContext<{ passengers: Passenger[] }>();
     const { fields, append, remove } = useFieldArray({
@@ -34,16 +37,28 @@ export function PassengerForm({ control, bookerName, bookerIdCard }: PassengerFo
             if (bookerIdCard) {
                 setValue(`passengers.${index}.id_card_number`, bookerIdCard);
             }
+            if (bookerPhone) {
+                setValue(`passengers.${index}.phone_number`, bookerPhone);
+            }
             setValue(`passengers.${index}.is_booker`, true);
         } else {
             setValue(`passengers.${index}.is_booker`, false);
         }
     };
 
-    const addPassenger = () => {
+    const addPassenger = async () => {
+        // Trigger validation for all existing passengers
+        const isValid = await trigger('passengers');
+
+        if (!isValid) {
+            toast.error('Mohon lengkapi data penumpang sebelumnya terlebih dahulu');
+            return;
+        }
+
         append({
             full_name: '',
             id_card_number: '',
+            phone_number: '',
             gender: 'MALE',
             age_group: 'ADULT',
             is_booker: false,
@@ -52,111 +67,163 @@ export function PassengerForm({ control, bookerName, bookerIdCard }: PassengerFo
 
     return (
         <div className="space-y-6">
-            {fields.map((field, index) => (
-                <motion.div
-                    key={field.id}
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    exit={{ opacity: 0, y: -20 }}
-                    transition={{ duration: 0.3 }}
-                >
-                    <Card className="border-slate-200 dark:border-slate-800">
-                        <CardHeader className="flex flex-row items-center justify-between pb-4">
-                            <CardTitle className="text-base font-semibold">Penumpang {index + 1}</CardTitle>
-                            {fields.length > 1 && (
-                                <Button
-                                    type="button"
-                                    variant="ghost"
-                                    size="icon"
-                                    className="size-8 text-red-500 hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-900/20"
-                                    onClick={() => remove(index)}
-                                >
-                                    <Trash2 className="size-4" />
-                                </Button>
-                            )}
-                        </CardHeader>
-                        <CardContent className="space-y-4">
-                            {/* Same as Booker Checkbox */}
-                            {index === 0 && bookerName && (
-                                <div className="flex items-center space-x-2 rounded-lg bg-slate-50 p-3 dark:bg-slate-800">
-                                    <Checkbox
-                                        id={`booker-${index}`}
-                                        checked={watch(`passengers.${index}.is_booker`)}
-                                        onCheckedChange={(checked) => handleCopyFromBooker(index, !!checked)}
-                                    />
-                                    <Label htmlFor={`booker-${index}`} className="cursor-pointer text-sm text-slate-600 dark:text-slate-400">
-                                        Sama dengan data pemesan
-                                    </Label>
+            <AnimatePresence mode="popLayout" initial={false}>
+                {fields.map((field, index) => (
+                    <motion.div
+                        key={field.id}
+                        layout
+                        initial={{ opacity: 0, y: 30, scale: 0.95 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        exit={{ opacity: 0, y: -30, scale: 0.9, transition: { duration: 0.2 } }}
+                        transition={{
+                            type: 'spring',
+                            stiffness: 350,
+                            damping: 30,
+                            mass: 1,
+                        }}
+                    >
+                        <Card className="overflow-hidden rounded-none border-0 border-slate-200 p-0 shadow-none transition-shadow dark:border-slate-800 dark:bg-slate-950/20">
+                            <CardHeader className="flex flex-row items-center justify-between border-b border-slate-100 bg-slate-50/50 px-4 py-3 sm:px-6 dark:border-slate-800 dark:bg-slate-900/50">
+                                <div className="flex items-center gap-2">
+                                    <div className="flex size-7 items-center justify-center rounded-lg bg-orange-100 text-orange-600 dark:bg-orange-900/20">
+                                        <Users className="size-4" />
+                                    </div>
+                                    <CardTitle className="text-sm font-black tracking-wider text-slate-700 uppercase dark:text-slate-300">
+                                        Penumpang {index + 1}
+                                    </CardTitle>
                                 </div>
-                            )}
-
-                            {/* Full Name */}
-                            <div className="space-y-2">
-                                <Label htmlFor={`passengers.${index}.full_name`}>
-                                    Nama Lengkap <span className="text-red-500">*</span>
-                                </Label>
-                                <Input
-                                    id={`passengers.${index}.full_name`}
-                                    placeholder="Nama sesuai KTP"
-                                    {...register(`passengers.${index}.full_name`)}
-                                    className="h-11"
-                                />
-                                {errors.passengers?.[index]?.full_name && (
-                                    <p className="text-sm text-red-500">{errors.passengers[index].full_name?.message}</p>
+                                {fields.length > 1 && (
+                                    <Button
+                                        type="button"
+                                        variant="ghost"
+                                        size="icon"
+                                        className="size-9 rounded-full text-slate-400 hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-900/20"
+                                        onClick={() => remove(index)}
+                                    >
+                                        <Trash2 className="size-4" />
+                                    </Button>
                                 )}
-                            </div>
-
-                            {/* ID Card Number */}
-                            <div className="space-y-2">
-                                <Label htmlFor={`passengers.${index}.id_card_number`}>
-                                    Nomor KTP / NIK <span className="text-red-500">*</span>
-                                </Label>
-                                <Input
-                                    id={`passengers.${index}.id_card_number`}
-                                    placeholder="16 digit NIK"
-                                    maxLength={16}
-                                    {...register(`passengers.${index}.id_card_number`)}
-                                    className="h-11"
-                                />
-                                {errors.passengers?.[index]?.id_card_number && (
-                                    <p className="text-sm text-red-500">{errors.passengers[index].id_card_number?.message}</p>
-                                )}
-                            </div>
-
-                            {/* Gender */}
-                            <div className="space-y-2">
-                                <Label>
-                                    Jenis Kelamin <span className="text-red-500">*</span>
-                                </Label>
-                                <RadioGroup
-                                    defaultValue={field.gender}
-                                    onValueChange={(value) => setValue(`passengers.${index}.gender`, value as 'MALE' | 'FEMALE')}
-                                    className="flex gap-4"
-                                >
-                                    <div className="flex items-center space-x-2">
-                                        <RadioGroupItem value="MALE" id={`gender-male-${index}`} />
-                                        <Label htmlFor={`gender-male-${index}`} className="cursor-pointer">
-                                            Laki-laki
+                            </CardHeader>
+                            <CardContent className="space-y-4 p-4 sm:p-6">
+                                {/* Same as Booker Checkbox */}
+                                {index === 0 && (!!bookerName || !!bookerPhone) && (
+                                    <div className="flex items-center space-x-3 rounded-xl bg-orange-50/50 p-4 ring-1 ring-orange-200/50 dark:bg-orange-950/10 dark:ring-orange-900/20">
+                                        <Checkbox
+                                            id={`booker-${index}`}
+                                            checked={watch(`passengers.${index}.is_booker`)}
+                                            onCheckedChange={(checked) => handleCopyFromBooker(index, !!checked)}
+                                        />
+                                        <Label
+                                            htmlFor={`booker-${index}`}
+                                            className="cursor-pointer text-sm font-semibold text-orange-800 dark:text-orange-300"
+                                        >
+                                            Booking untuk diri sendiri
                                         </Label>
                                     </div>
-                                    <div className="flex items-center space-x-2">
-                                        <RadioGroupItem value="FEMALE" id={`gender-female-${index}`} />
-                                        <Label htmlFor={`gender-female-${index}`} className="cursor-pointer">
-                                            Perempuan
+                                )}
+
+                                <div className="grid gap-5 md:grid-cols-2">
+                                    {/* Full Name */}
+                                    <div className="space-y-2.5">
+                                        <Label
+                                            htmlFor={`passengers.${index}.full_name`}
+                                            className="text-xs font-bold tracking-wide text-slate-500 uppercase"
+                                        >
+                                            Nama Lengkap <span className="text-red-500">*</span>
                                         </Label>
+                                        <Input
+                                            id={`passengers.${index}.full_name`}
+                                            placeholder="Nama sesuai KTP"
+                                            {...register(`passengers.${index}.full_name`)}
+                                            className="h-12 border-slate-200 bg-slate-50/50 focus:bg-white dark:border-slate-800 dark:bg-slate-900/50"
+                                        />
+                                        {errors.passengers?.[index]?.full_name && (
+                                            <p className="text-[11px] font-medium text-red-500">{errors.passengers[index].full_name?.message}</p>
+                                        )}
                                     </div>
-                                </RadioGroup>
-                            </div>
-                        </CardContent>
-                    </Card>
-                </motion.div>
-            ))}
+
+                                    {/* ID Card Number */}
+                                    <div className="space-y-2.5">
+                                        <Label
+                                            htmlFor={`passengers.${index}.id_card_number`}
+                                            className="text-xs font-bold tracking-wide text-slate-500 uppercase"
+                                        >
+                                            Nomor KTP / NIK <span className="text-red-500">*</span>
+                                        </Label>
+                                        <Input
+                                            id={`passengers.${index}.id_card_number`}
+                                            placeholder="16 digit NIK"
+                                            maxLength={16}
+                                            {...register(`passengers.${index}.id_card_number`)}
+                                            className="h-12 border-slate-200 bg-slate-50/50 focus:bg-white dark:border-slate-800 dark:bg-slate-900/50"
+                                        />
+                                        {errors.passengers?.[index]?.id_card_number && (
+                                            <p className="text-[11px] font-medium text-red-500">{errors.passengers[index].id_card_number?.message}</p>
+                                        )}
+                                    </div>
+
+                                    {/* WhatsApp Number */}
+                                    <div className="space-y-2.5">
+                                        <Label
+                                            htmlFor={`passengers.${index}.phone_number`}
+                                            className="text-xs font-bold tracking-wide text-slate-500 uppercase"
+                                        >
+                                            Nomor WhatsApp <span className="text-red-500">*</span>
+                                        </Label>
+                                        <Input
+                                            id={`passengers.${index}.phone_number`}
+                                            placeholder="Contoh: 081234567890"
+                                            {...register(`passengers.${index}.phone_number`)}
+                                            className="h-12 border-slate-200 bg-slate-50/50 focus:bg-white dark:border-slate-800 dark:bg-slate-900/50"
+                                        />
+                                        {errors.passengers?.[index]?.phone_number && (
+                                            <p className="text-[11px] font-medium text-red-500">{errors.passengers[index].phone_number?.message}</p>
+                                        )}
+                                    </div>
+                                </div>
+
+                                {/* Gender */}
+                                <div className="space-y-3">
+                                    <Label className="text-xs font-bold tracking-wide text-slate-500 uppercase">
+                                        Jenis Kelamin <span className="text-red-500">*</span>
+                                    </Label>
+                                    <RadioGroup
+                                        defaultValue={field.gender}
+                                        onValueChange={(value) => setValue(`passengers.${index}.gender`, value as 'MALE' | 'FEMALE')}
+                                        className="flex gap-6"
+                                    >
+                                        <div className="flex items-center space-x-2.5">
+                                            <RadioGroupItem value="MALE" id={`gender-male-${index}`} />
+                                            <Label htmlFor={`gender-male-${index}`} className="cursor-pointer font-medium">
+                                                Laki-laki
+                                            </Label>
+                                        </div>
+                                        <div className="flex items-center space-x-2.5">
+                                            <RadioGroupItem value="FEMALE" id={`gender-female-${index}`} />
+                                            <Label htmlFor={`gender-female-${index}`} className="cursor-pointer font-medium">
+                                                Perempuan
+                                            </Label>
+                                        </div>
+                                    </RadioGroup>
+                                </div>
+                            </CardContent>
+                        </Card>
+                    </motion.div>
+                ))}
+            </AnimatePresence>
 
             {/* Add Passenger Button */}
-            <Button type="button" variant="outline" className="w-full" onClick={addPassenger}>
-                <UserPlus className="mr-2 size-4" />
-                Tambah Penumpang
-            </Button>
+            <motion.div layout className="p-4">
+                <Button
+                    type="button"
+                    variant="outline"
+                    className="h-14 w-full border-dashed border-slate-300 bg-slate-50/30 text-base font-bold text-slate-600 transition-all hover:border-primary hover:bg-orange-50 hover:text-primary dark:border-slate-800 dark:bg-slate-900/30"
+                    onClick={addPassenger}
+                >
+                    <UserPlus className="mr-2 size-5" />
+                    Tambah Penumpang Lainnya
+                </Button>
+            </motion.div>
         </div>
     );
 }

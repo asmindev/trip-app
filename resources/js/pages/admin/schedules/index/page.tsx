@@ -90,7 +90,7 @@ export default function ScheduleIndex({ schedules, ships, routes, tripTypes, bra
 
                 {/* Main Content Card */}
                 <Card className="border-border/50 shadow-sm">
-                    <CardHeader className="p-4 sm:p-6">
+                    <CardHeader>
                         <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
                             <div className="flex flex-col gap-1">
                                 <CardTitle className="text-lg">Departure Board</CardTitle>

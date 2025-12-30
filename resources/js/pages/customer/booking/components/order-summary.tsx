@@ -12,23 +12,28 @@ interface OrderSummaryProps {
 }
 
 export function OrderSummary({ schedule, passengers, discount = 0, serviceFee = 5000 }: OrderSummaryProps) {
-    const basePrice = parseFloat(schedule.route.pricelists?.[0]?.price || '150000');
+    const basePrice = parseFloat(schedule.route.pricelists?.[0]?.price_public || '150000');
     const subtotal = basePrice * passengers;
     const total = subtotal + serviceFee - discount;
 
+    // Parse route name (e.g. "Kendari - Wakatobi")
+    const routeParts = schedule.route.name.split(' - ');
+    const origin = routeParts[0] || 'Kendari';
+    const destination = routeParts[1] || routeParts[0] || 'Wakatobi';
+
     return (
-        <div className="sticky top-24 rounded-xl border border-slate-200 bg-slate-50/50 p-6 backdrop-blur dark:border-slate-800 dark:bg-slate-900/50">
+        <div className="rounded-3xl border border-slate-200 bg-white p-8 shadow-xl shadow-slate-200/50 dark:border-slate-800 dark:bg-slate-900/50 dark:shadow-none">
             {/* Trip Header */}
             <div className="mb-4">
                 <div className="mb-2 flex items-center gap-2 text-lg font-bold text-slate-900 dark:text-white">
                     <MapPin className="size-4 text-primary" />
-                    <span>{schedule.route.origin || 'Kendari'}</span>
+                    <span>{origin}</span>
                     <span className="text-slate-400">→</span>
                     <Anchor className="size-4 text-primary" />
-                    <span>{schedule.route.destination || 'Wakatobi'}</span>
+                    <span>{destination}</span>
                 </div>
                 <Badge variant="outline" className="text-xs">
-                    {schedule.tripType.name}
+                    {schedule.trip_type?.name || 'Regular'}
                 </Badge>
             </div>
 

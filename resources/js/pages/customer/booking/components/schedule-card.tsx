@@ -15,15 +15,20 @@ interface ScheduleCardProps {
 
 export function ScheduleCard({ schedule, index = 0 }: ScheduleCardProps) {
     const [isExpanded, setIsExpanded] = useState(false);
-    const price = schedule.route.pricelists?.[0]?.price || '0';
+    const price = schedule.route.pricelists?.[0]?.price_public || '0';
     const isLowAvailability = schedule.available_seats <= 5;
     const arrivalTime = schedule.arrival_time || '11:30';
     const duration = calculateDuration(schedule.departure_time, arrivalTime);
 
+    // Parse route name (e.g. "Kendari - Wakatobi")
+    const routeParts = schedule.route.name.split(' - ');
+    const origin = routeParts[0] || 'Kendari';
+    const destination = routeParts[1] || routeParts[0] || 'Wakatobi';
+
     return (
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4, delay: index * 0.1 }}>
             <div
-                className="group cursor-pointer rounded-xl border border-slate-100 bg-white p-5 shadow-sm transition-all hover:border-primary/50 hover:shadow-md dark:border-slate-800 dark:bg-slate-900 dark:hover:border-primary/50"
+                className="group cursor-pointer rounded-xl border border-slate-100 bg-white p-4 shadow-sm transition-all duration-300 hover:border-orange-500/30 hover:shadow-xl hover:shadow-orange-500/10 sm:p-5 dark:border-slate-800 dark:bg-slate-900 dark:hover:border-orange-500/30 dark:hover:shadow-orange-900/20"
                 onClick={() => setIsExpanded(!isExpanded)}
             >
                 {/* Main Content Row */}
@@ -36,11 +41,14 @@ export function ScheduleCard({ schedule, index = 0 }: ScheduleCardProps) {
                         <div>
                             <div className="flex items-center gap-2">
                                 <h3 className="font-bold text-slate-900 dark:text-white">{schedule.ship.name}</h3>
-                                {/* <Badge variant="outline" className="text-xs">
-                                    {schedule.ship.class || 'Economy'}
-                                </Badge> */}
+                                <Badge
+                                    variant="outline"
+                                    className="bg-slate-50 text-xs font-medium text-slate-600 dark:bg-slate-800 dark:text-slate-400"
+                                >
+                                    {schedule.trip_type?.name || 'Regular'}
+                                </Badge>
                             </div>
-                            <p className="text-sm text-slate-500 dark:text-slate-400">{schedule.tripType?.name || 'Reguler'}</p>
+                            <p className="text-sm text-slate-500 dark:text-slate-400">Regular Trip</p>
                         </div>
                     </div>
 
@@ -51,7 +59,7 @@ export function ScheduleCard({ schedule, index = 0 }: ScheduleCardProps) {
                             <div className="text-xl font-bold text-slate-900 dark:text-white">{formatTime(schedule.departure_time)}</div>
                             <div className="flex items-center justify-center gap-1 text-sm text-slate-500 dark:text-slate-400">
                                 <MapPin className="size-3" />
-                                <span>{schedule.route.origin || 'Kendari'}</span>
+                                <span>{origin}</span>
                             </div>
                         </div>
 
@@ -73,7 +81,7 @@ export function ScheduleCard({ schedule, index = 0 }: ScheduleCardProps) {
                             <div className="text-xl font-bold text-slate-900 dark:text-white">{formatTime(arrivalTime)}</div>
                             <div className="flex items-center justify-center gap-1 text-sm text-slate-500 dark:text-slate-400">
                                 <Anchor className="size-3" />
-                                <span>{schedule.route.destination || 'Wakatobi'}</span>
+                                <span>{destination}</span>
                             </div>
                         </div>
                     </div>
@@ -87,7 +95,9 @@ export function ScheduleCard({ schedule, index = 0 }: ScheduleCardProps) {
                                 {isLowAvailability ? (
                                     <span className="font-medium text-red-600 dark:text-red-400">Sisa {schedule.available_seats} kursi</span>
                                 ) : (
-                                    <span className="text-green-600 dark:text-green-400">Tersedia</span>
+                                    <span className="font-medium text-green-600 dark:text-green-400">
+                                        Tersedia {schedule.available_seats} / {schedule.ship.capacity}
+                                    </span>
                                 )}
                             </div>
                         </div>

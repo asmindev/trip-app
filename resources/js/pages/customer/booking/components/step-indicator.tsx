@@ -1,5 +1,6 @@
 import { cn } from '@/lib/utils';
 import { Check } from 'lucide-react';
+import { motion } from 'motion/react';
 
 interface Step {
     id: number;
@@ -11,58 +12,68 @@ interface StepIndicatorProps {
     currentStep: number;
 }
 
-const defaultSteps: Step[] = [
-    { id: 1, name: 'Data Pemesan' },
-    { id: 2, name: 'Data Penumpang' },
-    { id: 3, name: 'Review' },
-    { id: 4, name: 'Bayar' },
-];
-
-export function StepIndicator({ steps = defaultSteps, currentStep }: StepIndicatorProps) {
+export function StepIndicator({ steps, currentStep }: StepIndicatorProps) {
     return (
-        <nav aria-label="Progress" className="mb-8">
-            <ol className="flex items-center">
-                {steps.map((step, stepIdx) => (
-                    <li key={step.id} className={cn('relative', stepIdx !== steps.length - 1 ? 'flex-1 pr-8' : '')}>
-                        {step.id < currentStep ? (
-                            // Completed step
-                            <div className="group flex items-center">
-                                <span className="flex items-center">
-                                    <span className="flex size-9 items-center justify-center rounded-full bg-primary">
-                                        <Check className="size-5 text-white" />
-                                    </span>
-                                </span>
-                                <span className="ml-3 hidden text-sm font-medium text-primary md:block">{step.name}</span>
-                            </div>
-                        ) : step.id === currentStep ? (
-                            // Current step
-                            <div className="flex items-center" aria-current="step">
-                                <span className="flex size-9 items-center justify-center rounded-full border-2 border-primary bg-white dark:bg-slate-900">
-                                    <span className="text-sm font-bold text-primary">{step.id}</span>
-                                </span>
-                                <span className="ml-3 hidden text-sm font-medium text-primary md:block">{step.name}</span>
-                            </div>
-                        ) : (
-                            // Upcoming step
-                            <div className="group flex items-center">
-                                <span className="flex size-9 items-center justify-center rounded-full border-2 border-slate-300 bg-white dark:border-slate-600 dark:bg-slate-900">
-                                    <span className="text-sm font-medium text-slate-500 dark:text-slate-400">{step.id}</span>
-                                </span>
-                                <span className="ml-3 hidden text-sm font-medium text-slate-500 md:block dark:text-slate-400">{step.name}</span>
-                            </div>
-                        )}
+        <div className="relative">
+            <div className="flex items-center justify-between">
+                {steps.map((step, idx) => {
+                    const isCompleted = step.id < currentStep;
+                    const isActive = step.id === currentStep;
 
-                        {/* Connector line */}
-                        {stepIdx !== steps.length - 1 && (
-                            <div className="absolute top-4 right-0 hidden w-full md:block" aria-hidden="true">
-                                <div className="ml-16 h-0.5 w-full bg-slate-200 dark:bg-slate-700">
-                                    {step.id < currentStep && <div className="h-0.5 w-full bg-primary" />}
+                    return (
+                        <div key={step.id} className="relative flex flex-1 flex-col items-center">
+                            {/* Connector Line */}
+                            {idx !== 0 && (
+                                <div className="absolute top-5 right-1/2 left-[-50%] z-0 h-[2px] -translate-y-1/2">
+                                    <div className="h-full w-full bg-slate-200 dark:bg-slate-800" />
+                                    <motion.div
+                                        initial={{ width: '0%' }}
+                                        animate={{ width: isCompleted || isActive ? '100%' : '0%' }}
+                                        className="absolute top-0 left-0 h-full bg-primary"
+                                        transition={{ duration: 0.5, ease: 'easeInOut' }}
+                                    />
                                 </div>
-                            </div>
-                        )}
-                    </li>
-                ))}
-            </ol>
-        </nav>
+                            )}
+
+                            {/* Step Circle */}
+                            <motion.div
+                                initial={false}
+                                animate={{
+                                    scale: isActive ? 1.1 : 1,
+                                    backgroundColor: isCompleted || isActive ? 'var(--color-primary)' : 'var(--color-slate-200)',
+                                }}
+                                className={cn(
+                                    'relative z-10 flex size-10 items-center justify-center rounded-full border-4 border-white shadow-lg transition-colors dark:border-slate-900',
+                                    isCompleted || isActive
+                                        ? 'bg-primary text-white'
+                                        : 'bg-slate-200 text-slate-500 dark:bg-slate-800 dark:text-slate-600',
+                                )}
+                            >
+                                {isCompleted ? <Check className="size-5" /> : <span className="text-sm font-black">{step.id}</span>}
+
+                                {isActive && (
+                                    <motion.div
+                                        layoutId="step-glow"
+                                        className="absolute -inset-2 -z-10 rounded-full bg-primary/20 blur-md"
+                                        transition={{ duration: 0.8, repeat: Infinity, repeatType: 'reverse' }}
+                                    />
+                                )}
+                            </motion.div>
+
+                            {/* Step Name */}
+                            <motion.span
+                                animate={{
+                                    color: isActive ? 'var(--color-primary)' : isCompleted ? 'var(--color-slate-500)' : 'var(--color-slate-400)',
+                                    fontWeight: isActive ? 900 : 700,
+                                }}
+                                className="mt-4 text-[10px] tracking-tight whitespace-nowrap uppercase md:text-xs md:tracking-normal dark:animate-none dark:text-slate-200"
+                            >
+                                {step.name}
+                            </motion.span>
+                        </div>
+                    );
+                })}
+            </div>
+        </div>
     );
 }

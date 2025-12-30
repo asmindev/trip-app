@@ -19,6 +19,13 @@ class BookingController extends Controller
             ->with(['user', 'schedule.ship', 'schedule.route', 'schedule.tripType', 'passengers'])
             ->allowedFilters([
                 'booking_code',
+                AllowedFilter::callback('q', function ($query, $value) {
+                    $query->where('booking_code', 'like', "%{$value}%")
+                          ->orWhereHas('user', function ($q) use ($value) {
+                              $q->where('name', 'like', "%{$value}%")
+                                ->orWhere('email', 'like', "%{$value}%");
+                          });
+                }),
                 AllowedFilter::exact('payment_status'),
                 AllowedFilter::scope('date_range'),
             ])
@@ -28,7 +35,7 @@ class BookingController extends Controller
                 'created_at',
             ])
             ->defaultSort('-created_at')
-            ->paginate(15)
+            ->paginate(request('per_page', 15))
             ->withQueryString();
 
         $stats = [
@@ -41,6 +48,7 @@ class BookingController extends Controller
         return Inertia::render('admin/bookings/index/page', [
             'bookings' => $bookings,
             'stats' => $stats,
+            'filters' => request()->input('filter', []),
         ]);
     }
 

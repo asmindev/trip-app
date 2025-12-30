@@ -1,8 +1,11 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { DataPagination } from '@/components/ui/data-pagination';
+import { DataTableToolbar } from '@/components/ui/data-table-toolbar';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useDebouncedCallback } from '@/hooks/use-debounce';
 import AdminLayout from '@/layouts/admin-layout';
 import type { PaginatedData } from '@/types';
-import { Head } from '@inertiajs/react';
+import { Head, router } from '@inertiajs/react';
 import { BookingStats } from '../components/booking-stats';
 import { BookingTable } from '../components/booking-table';
 
@@ -23,6 +26,7 @@ interface Booking {
         };
         route: {
             name: string;
+            // trip_type might be here or not, the interface had it.
         };
         trip_type: {
             name: string;
@@ -45,9 +49,30 @@ interface StatsData {
 interface BookingIndexProps {
     bookings: PaginatedData<Booking>;
     stats: StatsData;
+    filters: Record<string, string | string[] | null>;
 }
 
-export default function BookingIndex({ bookings, stats }: BookingIndexProps) {
+export default function BookingIndex({ bookings, stats, filters }: BookingIndexProps) {
+    const handleSearch = useDebouncedCallback((value: string) => {
+        router.get(route('admin.bookings.index'), { filter: { q: value } }, { preserveState: true, replace: true });
+    }, 300);
+
+    const handlePerPageChange = (value: string) => {
+        const url = new URL(window.location.href);
+        url.searchParams.set('per_page', value);
+        url.searchParams.set('page', '1');
+        router.get(url.toString(), {}, { preserveState: true, preserveScroll: true });
+    };
+
+    const renderToolbar = () => (
+        <DataTableToolbar
+            search={(filters?.q as string) || ''}
+            onSearch={handleSearch}
+            perPage={bookings.per_page}
+            onPerPageChange={handlePerPageChange}
+        />
+    );
+
     return (
         <AdminLayout title="Booking Management">
             <Head title="Bookings" />
@@ -73,11 +98,17 @@ export default function BookingIndex({ bookings, stats }: BookingIndexProps) {
                     <TabsContent value="all" className="space-y-4">
                         <Card>
                             <CardHeader>
-                                <CardTitle>All Bookings</CardTitle>
-                                <CardDescription>A list of all booking transactions</CardDescription>
+                                <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
+                                    <div>
+                                        <CardTitle>All Bookings</CardTitle>
+                                        <CardDescription>A list of all booking transactions</CardDescription>
+                                    </div>
+                                    {renderToolbar()}
+                                </div>
                             </CardHeader>
                             <CardContent>
-                                <BookingTable bookings={bookings.data} pagination={bookings} />
+                                <BookingTable bookings={bookings.data} />
+                                <DataPagination data={bookings} />
                             </CardContent>
                         </Card>
                     </TabsContent>
@@ -85,11 +116,17 @@ export default function BookingIndex({ bookings, stats }: BookingIndexProps) {
                     <TabsContent value="pending" className="space-y-4">
                         <Card>
                             <CardHeader>
-                                <CardTitle>Pending Payment</CardTitle>
-                                <CardDescription>Bookings waiting for payment</CardDescription>
+                                <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
+                                    <div>
+                                        <CardTitle>Pending Payment</CardTitle>
+                                        <CardDescription>Bookings waiting for payment</CardDescription>
+                                    </div>
+                                    {renderToolbar()}
+                                </div>
                             </CardHeader>
                             <CardContent>
-                                <BookingTable bookings={bookings.data.filter((b) => b.payment_status === 'PENDING')} pagination={bookings} />
+                                <BookingTable bookings={bookings.data.filter((b) => b.payment_status === 'PENDING')} />
+                                <DataPagination data={bookings} />
                             </CardContent>
                         </Card>
                     </TabsContent>
@@ -97,11 +134,17 @@ export default function BookingIndex({ bookings, stats }: BookingIndexProps) {
                     <TabsContent value="paid" className="space-y-4">
                         <Card>
                             <CardHeader>
-                                <CardTitle>Paid Bookings</CardTitle>
-                                <CardDescription>Successfully paid bookings</CardDescription>
+                                <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
+                                    <div>
+                                        <CardTitle>Paid Bookings</CardTitle>
+                                        <CardDescription>Successfully paid bookings</CardDescription>
+                                    </div>
+                                    {renderToolbar()}
+                                </div>
                             </CardHeader>
                             <CardContent>
-                                <BookingTable bookings={bookings.data.filter((b) => b.payment_status === 'PAID')} pagination={bookings} />
+                                <BookingTable bookings={bookings.data.filter((b) => b.payment_status === 'PAID')} />
+                                <DataPagination data={bookings} />
                             </CardContent>
                         </Card>
                     </TabsContent>
@@ -109,11 +152,17 @@ export default function BookingIndex({ bookings, stats }: BookingIndexProps) {
                     <TabsContent value="expired" className="space-y-4">
                         <Card>
                             <CardHeader>
-                                <CardTitle>Expired Bookings</CardTitle>
-                                <CardDescription>Bookings that have expired</CardDescription>
+                                <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
+                                    <div>
+                                        <CardTitle>Expired Bookings</CardTitle>
+                                        <CardDescription>Bookings that have expired</CardDescription>
+                                    </div>
+                                    {renderToolbar()}
+                                </div>
                             </CardHeader>
                             <CardContent>
-                                <BookingTable bookings={bookings.data.filter((b) => b.payment_status === 'EXPIRED')} pagination={bookings} />
+                                <BookingTable bookings={bookings.data.filter((b) => b.payment_status === 'EXPIRED')} />
+                                <DataPagination data={bookings} />
                             </CardContent>
                         </Card>
                     </TabsContent>

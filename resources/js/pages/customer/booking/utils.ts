@@ -45,11 +45,20 @@ export function formatDateShort(dateString: string): string {
 }
 
 /**
- * Calculate duration between two time strings
+ * Calculate duration between two time strings or datetime strings
  */
 export function calculateDuration(startTime: string, endTime: string): string {
-    const [startH, startM] = startTime.split(':').map(Number);
-    const [endH, endM] = endTime.split(':').map(Number);
+    // Extract HH:MM from strings that might be datetimes (YYYY-MM-DD HH:MM:SS)
+    const extractTime = (str: string) => {
+        const timePart = str.includes(' ') ? str.split(' ')[1] : str;
+        return timePart.substring(0, 5);
+    };
+
+    const start = extractTime(startTime);
+    const end = extractTime(endTime);
+
+    const [startH, startM] = start.split(':').map(Number);
+    const [endH, endM] = end.split(':').map(Number);
 
     let totalMinutes = endH * 60 + endM - (startH * 60 + startM);
     if (totalMinutes < 0) totalMinutes += 24 * 60; // Handle overnight

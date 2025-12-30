@@ -23,7 +23,7 @@ interface HeroSectionProps {
 const defaultSettings: HeroSettings = {
     badge: '100+ jadwal tersedia hari ini',
     headline: 'Jelajahi Nusantara Tanpa Batas.',
-    subheadline: 'Platform booking tiket kapal premium #1 di Indonesia. Cepat, aman, dan terpercaya.',
+    subheadline: 'Platform booking tiket kapal premium #1 di Indonesia. Cepat, aman, dan',
     stats: [
         { value: '50K+', label: 'Penumpang Puas' },
         { value: '4.9', label: 'Rating Pengguna' },

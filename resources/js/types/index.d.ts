@@ -3,6 +3,7 @@ export interface User {
     avatar?: string;
     name: string;
     email: string;
+    phone?: string;
     email_verified_at?: string;
     branch_id?: number | null;
     roles: string[];
@@ -37,6 +38,8 @@ export interface PaginatedData<T> {
     total: number;
     prev_page_url?: string | null;
     next_page_url?: string | null;
+    first_page_url?: string | null;
+    last_page_url?: string | null;
 }
 
 export interface Branch {

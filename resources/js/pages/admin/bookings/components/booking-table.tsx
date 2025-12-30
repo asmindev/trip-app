@@ -9,7 +9,6 @@ import {
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import type { PaginatedData } from '@/types';
 import { router } from '@inertiajs/react';
 import { Eye, MoreHorizontal, Trash2 } from 'lucide-react';
 
@@ -44,10 +43,9 @@ interface Booking {
 
 interface BookingTableProps {
     bookings: Booking[];
-    pagination?: PaginatedData<Booking>;
 }
 
-export function BookingTable({ bookings, pagination }: BookingTableProps) {
+export function BookingTable({ bookings }: BookingTableProps) {
     const getPaymentStatusBadge = (status: Booking['payment_status']) => {
         const variants = {
             PENDING: 'bg-orange-100 text-orange-800 dark:bg-orange-900/20 dark:text-orange-400',

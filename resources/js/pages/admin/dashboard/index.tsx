@@ -1,39 +1,40 @@
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import AdminLayout from '@/layouts/admin-layout';
 import { Head } from '@inertiajs/react';
+import { RecentBookingsTable } from './components/recent-bookings';
+import { RevenueChart } from './components/revenue-chart';
+import { RoutePerformanceChart } from './components/route-chart';
+import { StatsGrid } from './components/stats-grid';
+import { DashboardProps } from './types';
 
-export default function AdminDashboard() {
+export default function AdminDashboard({ stats, revenueData, routePerformance, recentBookings }: DashboardProps) {
     return (
         <AdminLayout title="Dashboard">
             <Head title="Admin Dashboard" />
 
-            <div className="grid gap-4 md:grid-cols-3">
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Total Bookings</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <p className="text-3xl font-bold">128</p>
-                    </CardContent>
-                </Card>
+            <div className="flex flex-col gap-8 space-y-4 p-4 md:p-8">
+                {/* Header */}
+                <div className="flex items-center justify-between">
+                    <div className="space-y-1">
+                        <h2 className="text-3xl font-bold tracking-tight text-foreground">Dashboard</h2>
+                        <p className="text-muted-foreground">Ringkasan performa operasional kapal dan penjualan tiket.</p>
+                    </div>
+                    <div className="hidden items-center space-x-2 md:flex">
+                        <Button>Download Laporan</Button>
+                    </div>
+                </div>
 
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Revenue</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <p className="text-3xl font-bold">Rp 15.000.000</p>
-                    </CardContent>
-                </Card>
+                {/* KPI Stats Grid */}
+                <StatsGrid stats={stats} />
 
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Active Ships</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <p className="text-3xl font-bold">4</p>
-                    </CardContent>
-                </Card>
+                {/* Main Charts Area */}
+                <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-7">
+                    <RevenueChart data={revenueData} />
+                    <RoutePerformanceChart data={routePerformance} />
+                </div>
+
+                {/* Recent Transactions */}
+                <RecentBookingsTable bookings={recentBookings} />
             </div>
         </AdminLayout>
     );

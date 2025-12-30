@@ -27,13 +27,8 @@ export function SearchWidget({ initialFilters, compact = false }: SearchWidgetPr
     };
 
     return (
-        <div
-            className={cn(
-                'rounded-2xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-800 dark:bg-slate-900',
-                compact ? 'items-end md:flex md:items-end md:gap-4' : '',
-            )}
-        >
-            <div className={cn('grid gap-3', compact ? 'flex-1 md:grid-cols-2' : 'md:grid-cols-2')}>
+        <div className="flex flex-col gap-4 rounded-xl border bg-background p-3 shadow-sm sm:p-4">
+            <div className="grid grid-cols-2 gap-3 md:grid-cols-2">
                 {/* Date */}
                 <div className="space-y-1.5">
                     <label className="text-xs font-medium text-slate-500 dark:text-slate-400">Tanggal Keberangkatan</label>
@@ -41,10 +36,7 @@ export function SearchWidget({ initialFilters, compact = false }: SearchWidgetPr
                         <PopoverTrigger asChild>
                             <Button
                                 variant="outline"
-                                className={cn(
-                                    'h-11 w-full justify-start rounded-xl bg-slate-50 text-left font-normal dark:bg-slate-800',
-                                    !date && 'text-muted-foreground',
-                                )}
+                                className="h-11 w-full justify-start rounded-xl bg-slate-50 text-left font-normal dark:bg-slate-800"
                             >
                                 <CalendarIcon className="mr-2 size-4 text-primary" />
                                 {date ? format(date, 'd MMM yyyy', { locale: id }) : 'Pilih tanggal'}
@@ -62,7 +54,9 @@ export function SearchWidget({ initialFilters, compact = false }: SearchWidgetPr
                     <div className="flex h-11 items-center justify-between rounded-xl border border-slate-200 bg-slate-50 px-3 dark:border-slate-700 dark:bg-slate-800">
                         <div className="flex items-center gap-2">
                             <Users className="size-4 text-primary" />
-                            <span className="text-sm font-medium">{passengers} orang</span>
+                            <span className="flex items-center gap-2 text-sm font-medium">
+                                {passengers} <p className="hidden sm:block">orang</p>
+                            </span>
                         </div>
                         <div className="flex items-center gap-1">
                             <Button

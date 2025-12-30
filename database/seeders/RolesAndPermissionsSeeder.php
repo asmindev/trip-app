@@ -85,6 +85,8 @@ class RolesAndPermissionsSeeder extends Seeder
             'expenses.view-any',
             'expenses.view',
             'expenses.create',
+            'expenses.update',
+            'expenses.delete',
             'expenses.approve',
             'expenses.reject',
             'expense-categories.manage',

@@ -22,23 +22,26 @@ export interface Schedule {
         waypoints?: Array<{ name: string; order: number }>;
         pricelists?: Pricelist[];
     };
-    tripType: {
-        id: number;
-        name: string;
-        code: 'PUBLIC' | 'EVENT';
-    };
+    trip_type: TripType;
+}
+
+export interface TripType {
+    id: number;
+    name: string;
+    code: string;
 }
 
 export interface Pricelist {
     id: number;
-    price: string;
-    age_group: 'ADULT' | 'CHILD' | 'INFANT';
+    price_public: string;
+    price_event: string;
     is_active: boolean;
 }
 
 export interface Passenger {
     full_name: string;
     id_card_number: string;
+    phone_number: string;
     gender: 'MALE' | 'FEMALE';
     age_group: 'ADULT' | 'CHILD' | 'INFANT';
     is_booker?: boolean;
@@ -56,7 +59,7 @@ export interface SearchFilters {
     destination?: string;
     passengers?: number;
     priceRange?: [number, number];
-    departureTime?: ('morning' | 'afternoon' | 'night')[];
+    trip_type_id?: number[];
     shipClass?: ('ECONOMY' | 'VIP' | 'VVIP')[];
     facilities?: string[];
 }

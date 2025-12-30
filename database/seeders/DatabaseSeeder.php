@@ -22,5 +22,13 @@ class DatabaseSeeder extends Seeder
 
         // 5. Jadwal (Schedule)
         $this->call(ScheduleSeeder::class);
+
+        // 5. Jadwal (Schedule) - Optional if MasterSeeder handles it, otherwise keep
+        // If ScheduleSeeder is redundant now, we can remove it too, but user only asked to merge dashboard.
+        // Let's assume MasterSeeder now covers all 'Dynamic' data too so we might not need ScheduleSeeder either if it does the same thing.
+        // But for now, just remove logic regarding DashboardDataSeeder.
+
+        // Note: I will keep ScheduleSeeder call if it's different logic, but based on context MasterSeeder now does heavy lifting.
+        // Let's just remove DashboardDataSeeder line.
     }
 }

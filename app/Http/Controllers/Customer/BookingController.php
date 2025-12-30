@@ -4,9 +4,11 @@ namespace App\Http\Controllers\Customer;
 
 use App\Http\Controllers\Controller;
 use App\Models\Schedule;
+use App\Models\TripType;
 use App\Services\BookingService; // Service Class (Next Step)
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
 use Spatie\QueryBuilder\QueryBuilder;
 use Spatie\QueryBuilder\AllowedFilter;
@@ -30,15 +32,22 @@ class BookingController extends Controller
             ->allowedFilters([
                 AllowedFilter::exact('trip_route_id'),
                 AllowedFilter::exact('departure_date'),
+                AllowedFilter::exact('trip_type_id'),
             ])
             ->available() // Scope: status SCHEDULED & seats > 0
-            ->with(['route', 'ship', 'tripType'])
+            ->with(['route.pricelists' => function($q) {
+                $q->where('is_active', true);
+            }, 'ship', 'tripType'])
             ->orderBy('departure_time')
             ->paginate(10)
             ->withQueryString();
 
+        $tripTypes = TripType::all(['id', 'name', 'code']);
+        Log::info('Trip Types: ' . json_encode($tripTypes));
+
         return Inertia::render('customer/booking/index/page', [
             'schedules' => $schedules,
+            'trip_types' => $tripTypes,
         ]);
     }
 
@@ -46,10 +55,9 @@ class BookingController extends Controller
     public function create(Schedule $schedule)
     {
         // Load harga yang aktif
-        $schedule->load(['route.pricelists' => function ($q) use ($schedule) {
-            $q->where('trip_type_id', $schedule->trip_type_id)
-                ->where('is_active', true);
-        }]);
+        $schedule->load(['route.pricelists' => function($q) {
+            $q->where('is_active', true);
+        }, 'ship', 'tripType']);
 
         return Inertia::render('customer/booking/create/page', [
             'schedule' => $schedule,
