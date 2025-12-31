@@ -14,7 +14,7 @@ class SettingSeeder extends Seeder
             [
                 'key' => 'app_name',
                 'label' => 'Nama Aplikasi',
-                'value' => 'Kapal Trip',
+                'value' => 'Pinisi Kendari',
                 'type' => 'text',
                 'group' => 'general',
             ],
@@ -28,7 +28,7 @@ class SettingSeeder extends Seeder
             [
                 'key' => 'app_description',
                 'label' => 'Deskripsi Aplikasi',
-                'value' => 'Platform booking tiket kapal terpercaya #1 di Indonesia.',
+                'value' => 'Platform booking trip kapal #1 di kendari!.',
                 'type' => 'textarea',
                 'group' => 'general',
             ],
@@ -44,14 +44,14 @@ class SettingSeeder extends Seeder
             [
                 'key' => 'hero_title',
                 'label' => 'Hero Title',
-                'value' => 'Jelajahi Nusantara Tanpa Batas',
+                'value' => 'Jelajahi Surga di Kendari tanpa batas',
                 'type' => 'text',
                 'group' => 'landing',
             ],
             [
                 'key' => 'hero_subtitle',
                 'label' => 'Hero Subtitle',
-                'value' => 'Pesan tiket kapal ke pulau-pulau eksotis Indonesia dengan mudah. Cepat, aman, dan terpercaya.',
+                'value' => 'Pesan tiket trip kapal dengan mudah dan nikmati liburanmu diatas kapal pinisi.',
                 'type' => 'textarea',
                 'group' => 'landing',
             ],
