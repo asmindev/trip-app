@@ -24,7 +24,7 @@ import { formatCurrency } from '../utils';
 const passengerSchema = z.object({
     full_name: z.string().min(3, 'Nama minimal 3 karakter'),
     id_card_number: z.string().length(16, 'NIK harus 16 digit'),
-    phone_number: z
+    whatsapp: z
         .string()
         .min(10, 'Nomor WA minimal 10 digit')
         .max(15, 'Nomor WA maksimal 15 digit')
@@ -61,7 +61,7 @@ export default function BookingCreatePage({ schedule }: PageProps) {
                 {
                     full_name: '',
                     id_card_number: '',
-                    phone_number: '',
+                    whatsapp: '',
                     gender: 'MALE',
                     age_group: 'ADULT',
                     is_booker: false,
@@ -84,6 +84,8 @@ export default function BookingCreatePage({ schedule }: PageProps) {
                 promo_code: appliedPromo,
             });
         } catch {
+            setIsSubmitting(false);
+        } finally {
             setIsSubmitting(false);
         }
     };

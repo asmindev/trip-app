@@ -25,6 +25,11 @@ Route::post('logout', [LoginController::class, 'destroy'])->name('logout');
 Route::get('/booking', [BookingController::class, 'index'])->name('booking.index');
 Route::get('/booking/create/{schedule}', [BookingController::class, 'create'])->name('booking.create');
 
+// Development Routes (Payment Simulation)
+Route::get('/dev/payment-simulation', [\App\Http\Controllers\Api\PaymentController::class, 'simulation'])->name('dev.payment.simulation');
+Route::post('/dev/payment-simulation', [\App\Http\Controllers\Api\PaymentController::class, 'simulate'])->name('dev.payment.simulate');
+
+
 // Authenticated Routes
 Route::middleware('auth')->group(function () {
 

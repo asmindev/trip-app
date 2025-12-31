@@ -38,7 +38,7 @@ export function PassengerForm({ control, bookerName, bookerIdCard, bookerPhone }
                 setValue(`passengers.${index}.id_card_number`, bookerIdCard);
             }
             if (bookerPhone) {
-                setValue(`passengers.${index}.phone_number`, bookerPhone);
+                setValue(`passengers.${index}.whatsapp`, bookerPhone);
             }
             setValue(`passengers.${index}.is_booker`, true);
         } else {
@@ -58,7 +58,8 @@ export function PassengerForm({ control, bookerName, bookerIdCard, bookerPhone }
         append({
             full_name: '',
             id_card_number: '',
-            phone_number: '',
+            whatsapp: '',
+            email: '',
             gender: 'MALE',
             age_group: 'ADULT',
             is_booker: false,
@@ -162,23 +163,45 @@ export function PassengerForm({ control, bookerName, bookerIdCard, bookerPhone }
                                         )}
                                     </div>
 
+                                    {/* Email Address (Optional) */}
+                                    <div className="space-y-2.5">
+                                        <Label
+                                            htmlFor={`passengers.${index}.email`}
+                                            className="text-xs font-bold tracking-wide text-slate-500 uppercase"
+                                        >
+                                            Email (Opsional)
+                                        </Label>
+                                        <Input
+                                            id={`passengers.${index}.email`}
+                                            type="email"
+                                            placeholder="contoh@email.com"
+                                            {...register(`passengers.${index}.email`)}
+                                            className="h-12 border-slate-200 bg-slate-50/50 focus:bg-white dark:border-slate-800 dark:bg-slate-900/50"
+                                        />
+                                        {errors.passengers?.[index]?.email && (
+                                            <p className="text-[11px] font-medium text-red-500">{errors.passengers[index].email?.message}</p>
+                                        )}
+                                    </div>
+
                                     {/* WhatsApp Number */}
                                     <div className="space-y-2.5">
                                         <Label
                                             htmlFor={`passengers.${index}.phone_number`}
                                             className="text-xs font-bold tracking-wide text-slate-500 uppercase"
                                         >
-                                            Nomor WhatsApp <span className="text-red-500">*</span>
+                                            Nomor WhatsApp (Wajib) <span className="text-red-500">*</span>
                                         </Label>
                                         <Input
-                                            id={`passengers.${index}.phone_number`}
+                                            id={`passengers.${index}.whatsapp`}
                                             placeholder="Contoh: 081234567890"
-                                            {...register(`passengers.${index}.phone_number`)}
+                                            inputMode="numeric"
+                                            {...register(`passengers.${index}.whatsapp`)}
                                             className="h-12 border-slate-200 bg-slate-50/50 focus:bg-white dark:border-slate-800 dark:bg-slate-900/50"
                                         />
-                                        {errors.passengers?.[index]?.phone_number && (
-                                            <p className="text-[11px] font-medium text-red-500">{errors.passengers[index].phone_number?.message}</p>
+                                        {errors.passengers?.[index]?.whatsapp && (
+                                            <p className="text-[11px] font-medium text-red-500">{errors.passengers[index].whatsapp?.message}</p>
                                         )}
+                                        <p className="text-[10px] text-slate-400">Tiket QR Code akan dikirim ke nomor ini via WhatsApp.</p>
                                     </div>
                                 </div>
 

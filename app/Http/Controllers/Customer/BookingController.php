@@ -3,9 +3,11 @@
 namespace App\Http\Controllers\Customer;
 
 use App\Http\Controllers\Controller;
+use App\Models\Booking;
 use App\Models\Schedule;
 use App\Models\TripType;
 use App\Services\BookingService; // Service Class (Next Step)
+use App\Services\PaymentService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
@@ -18,11 +20,13 @@ use DB;
 class BookingController extends Controller
 {
     protected $bookingService;
+    protected $paymentService;
 
     // Dependency Injection Service
-    public function __construct(BookingService $bookingService)
+    public function __construct(BookingService $bookingService, PaymentService $paymentService)
     {
         $this->bookingService = $bookingService;
+        $this->paymentService = $paymentService;
     }
 
     // Halaman Pencarian Tiket
@@ -81,8 +85,8 @@ class BookingController extends Controller
                 data: $bookingData // Kirim DTO, bukan array mentah
             );
 
-            // Redirect ke Invoice Xendit / Halaman Payment Lokal
-            return Inertia::location($booking->payment->checkout_url);
+            // Redirect to Internal Payment Page
+            return to_route('booking.payment', $booking->booking_code);
         } catch (\Exception $e) {
             return back()->with('error', $e->getMessage());
         }
@@ -91,13 +95,28 @@ class BookingController extends Controller
     // Halaman Detail Pembayaran
     public function payment($code)
     {
-        $booking = \App\Models\Booking::with(['payment', 'passengers', 'schedule.route'])
+
+        $booking = Booking::with(['payment', 'passengers', 'schedule.route', 'schedule.ship', 'schedule.tripType'])
             ->where('booking_code', $code)
             ->firstOrFail();
 
         // Cek Policy (BookingPolicy::view)
         // Jika gagal, otomatis return 403 Forbidden
         $this->authorize('view', $booking);
+        // Log::info('Booking Code: ' . js));
+        // $paymentRequestId = $booking->payment->xendit_id;
+
+        try {
+            // Update Sync Payment Status (Logic Moved to Service)
+            if ($booking->payment) {
+                $this->paymentService->syncPaymentStatus($booking->payment);
+            }
+
+            // Refresh booking to get latest data
+            $booking->refresh();
+        } catch (\Exception $e) {
+            Log::error('Failed to sync payment status in controller: ' . $e->getMessage());
+        }
 
         return Inertia::render('customer/booking/payment', [
             'booking' => $booking,

@@ -49,7 +49,7 @@ export function OrderSummary({ schedule, passengers, discount = 0, serviceFee = 
                 </div>
                 <div className="flex items-center gap-2 text-slate-600 dark:text-slate-400">
                     <Ship className="size-4" />
-                    <span>{schedule.ship.name}</span>
+                    <span>{schedule.ship?.name || 'N/A'}</span>
                 </div>
             </div>
 

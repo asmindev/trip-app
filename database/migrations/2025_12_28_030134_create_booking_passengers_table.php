@@ -17,7 +17,9 @@ return new class extends Migration
             $table->string('ticket_number')->unique()->nullable(); // TKT-XXX (Generated after paid)
             $table->string('full_name');
             $table->string('identity_number')->nullable(); // NIK/Passport
-            $table->enum('gender', ['L', 'P'])->nullable();
+            $table->string('whatsapp'); // Required for sending QR
+            $table->string('email')->nullable(); // Optional
+            $table->enum('gender', ['MALE', 'FEMALE'])->nullable();
 
             // Pricing info per pax
             $table->decimal('price', 15, 2);

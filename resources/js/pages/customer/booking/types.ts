@@ -41,7 +41,8 @@ export interface Pricelist {
 export interface Passenger {
     full_name: string;
     id_card_number: string;
-    phone_number: string;
+    whatsapp: string;
+    email?: string;
     gender: 'MALE' | 'FEMALE';
     age_group: 'ADULT' | 'CHILD' | 'INFANT';
     is_booker?: boolean;
@@ -62,4 +63,32 @@ export interface SearchFilters {
     trip_type_id?: number[];
     shipClass?: ('ECONOMY' | 'VIP' | 'VVIP')[];
     facilities?: string[];
+}
+
+export interface Payment {
+    id: number;
+    booking_id: number;
+    external_id: string;
+    status: 'PENDING' | 'PAID' | 'EXPIRED' | 'FAILED';
+    amount: number;
+    payment_type: 'VIRTUAL_ACCOUNT' | 'QR_CODE';
+    payment_channel: string;
+    payment_code: string;
+    expiration_date: string;
+    paid_at?: string;
+    qr_image?: string;
+    xendit_id: string;
+}
+
+export interface Booking {
+    id: number;
+    booking_code: string;
+    user_id: number;
+    schedule_id: number;
+    booking_date: string;
+    total_amount: number;
+    payment_status: 'PENDING' | 'PAID' | 'EXPIRED' | 'FAILED';
+    payment?: Payment;
+    passengers: Passenger[];
+    schedule: Schedule;
 }

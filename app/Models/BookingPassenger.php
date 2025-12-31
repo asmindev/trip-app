@@ -12,6 +12,7 @@ class BookingPassenger extends Model
         'scanned_at' => 'datetime',
         'is_free_ticket' => 'boolean',
         'price' => 'decimal:2',
+        'gender' => \App\Enums\Gender::class,
     ];
 
     public function booking()

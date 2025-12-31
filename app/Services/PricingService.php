@@ -19,7 +19,14 @@ class PricingService
         $pricelist = $schedule->route->pricelists()
             ->where('trip_type_id', $schedule->trip_type_id)
             ->where('is_active', true)
-            ->whereDate('effective_from', '<=', now())
+            ->where(function ($query) {
+                $query->whereNull('effective_from')
+                      ->orWhereDate('effective_from', '<=', now());
+            })
+            ->where(function ($query) {
+                 $query->whereNull('effective_until')
+                       ->orWhereDate('effective_until', '>=', now());
+            })
             ->firstOrFail();
 
         // 2. Tentukan Harga Dasar (Public vs Event)
