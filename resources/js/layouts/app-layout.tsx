@@ -91,11 +91,17 @@ export default function AppLayout({ children }: AppLayoutProps) {
                         <div className="flex flex-col leading-tight">
                             <span
                                 className={`text-xl font-black tracking-tight transition-colors duration-300 ${
-                                    isScrolled ? 'text-slate-900 dark:text-white' : 'text-white drop-shadow-sm'
+                                    isScrolled ? 'text-slate-900 dark:text-white' : 'text-white'
                                 }`}
                             >
                                 {appName.split(' ')[0]}
-                                <span className="text-primary">{appName.split(' ')[1] || ''}</span>
+                                <span
+                                    className={`transition-colors duration-300 ${
+                                        isScrolled ? 'text-primary' : 'text-white drop-shadow-[0_0_10px_rgba(255,255,255,0.3)]'
+                                    }`}
+                                >
+                                    {appName.split(' ')[1] || ''}
+                                </span>
                             </span>
                             <span
                                 className={`text-[10px] font-bold tracking-[0.2em] uppercase transition-opacity duration-300 ${
