@@ -15,6 +15,7 @@ use Inertia\Inertia;
 use Spatie\QueryBuilder\QueryBuilder;
 use Spatie\QueryBuilder\AllowedFilter;
 use App\Data\CreateBookingData; // Import DTO
+use Spatie\LaravelPdf\Facades\Pdf;
 use DB;
 
 class BookingController extends Controller
@@ -123,5 +124,26 @@ class BookingController extends Controller
             // Jika ada invoice URL Xendit, kirim ke frontend
             'checkout_url' => $booking->payment?->checkout_url,
         ]);
+    }
+
+    public function downloadTicket(Booking $booking)
+    {
+        $this->authorize('view', $booking);
+
+        if ($booking->payment_status !== 'PAID') {
+            abort(403, 'Ticket belum tersedia. Harap lunasi pembayaran terlebih dahulu.');
+        }
+
+        // Generate QR Code containing Booking Code
+        // Using PaymentService which uses endroid/qr-code
+        $qrCode = $this->paymentService->generateQrCodeImage($booking->booking_code);
+
+        return Pdf::view('pdf.ticket', [
+            'booking' => $booking,
+            'qrCode' => $qrCode,
+        ])
+        ->format('a4')
+        ->name('Tiket-' . $booking->booking_code . '.pdf')
+        ->download();
     }
 }

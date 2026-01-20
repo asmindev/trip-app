@@ -17,8 +17,9 @@ Route::get('/', function () {
         'routes' => $routes,
     ]);
 })->name('home');
-Route::get('login', [LoginController::class, 'create'])->name('login');
-Route::post('login', [LoginController::class, 'store']);
+// Authentication routes handled by Fortify (see FortifyServiceProvider.php)
+// Login view: resources/js/pages/auth/login.tsx
+// Login redirect logic: app/Http/Responses/LoginResponse.php
 Route::post('logout', [LoginController::class, 'destroy'])->name('logout');
 
 // Public Booking Routes (Browse schedules without login)
@@ -43,6 +44,10 @@ Route::middleware('auth')->group(function () {
         Route::get('/booking/{booking:booking_code}', [BookingController::class, 'payment'])
             ->name('booking.payment')
             ->can('view', 'booking'); // Laravel otomatis cek BookingPolicy::view
+
+        Route::get('/booking/{booking:booking_code}/ticket', [BookingController::class, 'downloadTicket'])
+            ->name('booking.ticket')
+            ->can('view', 'booking');
     });
 
     // --- AREA ADMIN ---

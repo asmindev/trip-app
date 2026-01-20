@@ -40,7 +40,7 @@ class FortifyServiceProvider extends ServiceProvider
 
         // 2. SETUP VIEW (Hubungkan ke Inertia React)
         Fortify::loginView(function () {
-            return Inertia::render('Auth/Login', [
+            return Inertia::render('auth/login', [
                 'status' => session('status'),
                 'canResetPassword' => \Illuminate\Support\Facades\Route::has('password.request'),
             ]);

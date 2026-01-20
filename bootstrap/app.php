@@ -28,6 +28,20 @@ return Application::configure(basePath: dirname(__DIR__))
             'permission' => \Spatie\Permission\Middleware\PermissionMiddleware::class,
             'role_or_permission' => \Spatie\Permission\Middleware\RoleOrPermissionMiddleware::class,
         ]);
+
+        $middleware->redirectUsersTo(function () {
+             $user = \Illuminate\Support\Facades\Auth::user();
+
+             if ($user?->hasRole(['admin', 'super-admin'])) {
+                 return route('admin.dashboard');
+             }
+
+             if ($user?->hasRole('operator')) {
+                 return route('operator.dashboard');
+             }
+
+             return '/';
+        });
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

@@ -217,10 +217,10 @@ export default function PaymentPage({ booking }: Props) {
                                         <div className="flex justify-center gap-4">
                                             <Button
                                                 size="lg"
-                                                onClick={() => router.visit(route('customer.dashboard'))}
+                                                onClick={() => window.open(route('booking.ticket', booking.booking_code), '_blank')}
                                                 className="bg-primary hover:bg-primary/90"
                                             >
-                                                Lihat Tiket Saya
+                                                Unduh Tiket (PDF)
                                             </Button>
                                             <Button variant="outline" size="lg" onClick={() => router.visit(route('booking.index'))}>
                                                 Kembali ke Beranda
