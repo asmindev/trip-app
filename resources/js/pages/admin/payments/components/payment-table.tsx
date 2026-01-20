@@ -10,6 +10,8 @@ interface Payment {
     xendit_id: string | null;
     checkout_url: string | null;
     payment_method: string | null;
+    payment_type: string | null;
+    payment_channel: string | null;
     status: 'PENDING' | 'PAID' | 'EXPIRED' | 'FAILED';
     amount: string;
     paid_at: string | null;
@@ -49,14 +51,32 @@ export function PaymentTable({ payments }: PaymentTableProps) {
         return <Badge className={variants[status]}>{status}</Badge>;
     };
 
-    const getPaymentMethodBadge = (method: string | null) => {
+    const getPaymentMethodBadge = (payment: Payment) => {
+        // Use payment_channel (BCA, MANDIRI, etc) or payment_type as fallback
+        const method = payment.payment_method || payment.payment_channel || payment.payment_type;
+
         if (!method) return <span className="text-xs text-muted-foreground">N/A</span>;
 
         const variants: Record<string, string> = {
-            BANK_TRANSFER: 'bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400',
+            // Payment Types
+            VIRTUAL_ACCOUNT: 'bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400',
+            QR_CODE: 'bg-teal-100 text-teal-800 dark:bg-teal-900/20 dark:text-teal-400',
             EWALLET: 'bg-purple-100 text-purple-800 dark:bg-purple-900/20 dark:text-purple-400',
-            QRIS: 'bg-teal-100 text-teal-800 dark:bg-teal-900/20 dark:text-teal-400',
             CREDIT_CARD: 'bg-indigo-100 text-indigo-800 dark:bg-indigo-900/20 dark:text-indigo-400',
+
+            // Bank Channels (Virtual Account)
+            BCA: 'bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400',
+            MANDIRI: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900/20 dark:text-yellow-400',
+            BNI: 'bg-orange-100 text-orange-800 dark:bg-orange-900/20 dark:text-orange-400',
+            BRI: 'bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400',
+            PERMATA: 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400',
+
+            // E-Wallets
+            GOPAY: 'bg-green-100 text-green-800 dark:bg-green-900/20 dark:text-green-400',
+            OVO: 'bg-purple-100 text-purple-800 dark:bg-purple-900/20 dark:text-purple-400',
+            DANA: 'bg-blue-100 text-blue-800 dark:bg-blue-900/20 dark:text-blue-400',
+            LINKAJA: 'bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400',
+            SHOPEEPAY: 'bg-orange-100 text-orange-800 dark:bg-orange-900/20 dark:text-orange-400',
         };
 
         const displayName = method.replace(/_/g, ' ');
@@ -125,7 +145,7 @@ export function PaymentTable({ payments }: PaymentTableProps) {
                                 </div>
                             </TableCell>
                             <TableCell className="font-medium">{formatCurrency(payment.amount)}</TableCell>
-                            <TableCell>{getPaymentMethodBadge(payment.payment_method)}</TableCell>
+                            <TableCell>{getPaymentMethodBadge(payment)}</TableCell>
                             <TableCell>{getStatusBadge(payment.status)}</TableCell>
                             <TableCell className="text-sm">
                                 {payment.paid_at ? formatDate(payment.paid_at) : formatDate(payment.created_at)}

@@ -1,4 +1,3 @@
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
@@ -39,18 +38,37 @@ function CountdownTimer({ targetDate, onExpire }: { targetDate: string; onExpire
     });
 
     if (!timeLeft) {
-        return <span className="font-bold text-red-600">Waktu Habis</span>;
+        return (
+            <div className="flex items-center gap-2 rounded-lg bg-red-100 px-4 py-2 dark:bg-red-900/30">
+                <Clock className="size-5 text-red-600 dark:text-red-400" />
+                <span className="text-lg font-bold text-red-600 dark:text-red-400">Waktu Habis</span>
+            </div>
+        );
     }
 
     return (
-        <Badge
-            variant="outline"
-            className="flex items-center gap-1 border-red-200 bg-red-50 font-mono text-red-700 dark:border-red-900/30 dark:bg-red-900/20 dark:text-red-400"
-        >
-            <Clock className="size-3" />
-            {timeLeft.hours > 0 && <span>{timeLeft.hours}j </span>}
-            {timeLeft.minutes}m {timeLeft.seconds}s
-        </Badge>
+        <div className="flex items-center justify-center gap-2">
+            {timeLeft.hours > 0 && (
+                <>
+                    <div className="flex flex-col items-center rounded-lg bg-white px-3 py-2 shadow-sm dark:bg-slate-800">
+                        <span className="font-mono text-2xl font-black text-red-600 dark:text-red-400">
+                            {String(timeLeft.hours).padStart(2, '0')}
+                        </span>
+                        <span className="text-[10px] font-semibold tracking-wider text-red-500/70 uppercase dark:text-red-400/70">Jam</span>
+                    </div>
+                    <span className="text-xl font-bold text-red-400">:</span>
+                </>
+            )}
+            <div className="flex flex-col items-center rounded-lg bg-white px-3 py-2 shadow-sm dark:bg-slate-800">
+                <span className="font-mono text-2xl font-black text-red-600 dark:text-red-400">{String(timeLeft.minutes).padStart(2, '0')}</span>
+                <span className="text-[10px] font-semibold tracking-wider text-red-500/70 uppercase dark:text-red-400/70">Menit</span>
+            </div>
+            <span className="text-xl font-bold text-red-400">:</span>
+            <div className="flex flex-col items-center rounded-lg bg-white px-3 py-2 shadow-sm dark:bg-slate-800">
+                <span className="font-mono text-2xl font-black text-red-600 dark:text-red-400">{String(timeLeft.seconds).padStart(2, '0')}</span>
+                <span className="text-[10px] font-semibold tracking-wider text-red-500/70 uppercase dark:text-red-400/70">Detik</span>
+            </div>
+        </div>
     );
 }
 
@@ -152,8 +170,11 @@ export function VirtualAccountDisplay({ bankCode, vaNumber, expiryDate, amount, 
                         <p className="text-xl font-bold text-slate-900 dark:text-white">Rp {new Intl.NumberFormat('id-ID').format(amount)}</p>
                     </div>
 
-                    <div className="flex justify-center gap-2 text-xs text-slate-500">
-                        <span>Berakhir dalam:</span>
+                    <div className="flex flex-col items-center justify-center gap-3 rounded-xl border-2 border-red-200 bg-red-50/50 p-4 dark:border-red-900/30 dark:bg-red-900/10">
+                        <div className="flex items-center gap-2 text-xs font-semibold tracking-wide text-red-700 uppercase dark:text-red-400">
+                            <Clock className="size-4" />
+                            <span>Batas Waktu Pembayaran</span>
+                        </div>
                         <CountdownTimer targetDate={expiryDate} onExpire={onExpire} />
                     </div>
                 </div>
@@ -199,8 +220,11 @@ export function QrDisplay({ qrString, expiryDate, amount, onExpire }: QrDisplayP
                         </div>
                     </div>
 
-                    <div className="mt-6 flex justify-center gap-2 text-xs text-slate-500">
-                        <span>Berakhir dalam:</span>
+                    <div className="mt-6 flex flex-col items-center justify-center gap-3 rounded-xl border-2 border-red-200 bg-red-50/50 p-4 dark:border-red-900/30 dark:bg-red-900/10">
+                        <div className="flex items-center gap-2 text-xs font-semibold tracking-wide text-red-700 uppercase dark:text-red-400">
+                            <Clock className="size-4" />
+                            <span>Batas Waktu Pembayaran</span>
+                        </div>
                         <CountdownTimer targetDate={expiryDate} onExpire={onExpire} />
                     </div>
                 </div>

@@ -15,7 +15,6 @@ use Inertia\Inertia;
 use Spatie\QueryBuilder\QueryBuilder;
 use Spatie\QueryBuilder\AllowedFilter;
 use App\Data\CreateBookingData; // Import DTO
-use Spatie\LaravelPdf\Facades\Pdf;
 use DB;
 
 class BookingController extends Controller
@@ -86,9 +85,26 @@ class BookingController extends Controller
                 data: $bookingData // Kirim DTO, bukan array mentah
             );
 
-            // Redirect to Internal Payment Page
+            // ✅ Return JSON for AJAX/Inertia requests (Multi-step wizard)
+            if ($request->wantsJson() || $request->header('X-Inertia')) {
+                return response()->json([
+                    'success' => true,
+                    'booking_code' => $booking->booking_code,
+                    'booking' => $booking->load(['payment', 'passengers', 'schedule.route', 'schedule.ship', 'schedule.tripType']),
+                ]);
+            }
+
+            // ✅ Redirect to Internal Payment Page (Traditional flow - backward compatibility)
             return to_route('booking.payment', $booking->booking_code);
         } catch (\Exception $e) {
+            // Return JSON error for AJAX requests
+            if ($request->wantsJson() || $request->header('X-Inertia')) {
+                return response()->json([
+                    'success' => false,
+                    'message' => $e->getMessage(),
+                ], 422);
+            }
+
             return back()->with('error', $e->getMessage());
         }
     }
@@ -138,12 +154,15 @@ class BookingController extends Controller
         // Using PaymentService which uses endroid/qr-code
         $qrCode = $this->paymentService->generateQrCodeImage($booking->booking_code);
 
-        return Pdf::view('pdf.ticket', [
+        // Load booking relations
+        $booking->load(['passengers', 'schedule.route', 'schedule.ship', 'schedule.tripType']);
+
+        // Generate PDF using DomPDF
+        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('pdf.ticket', [
             'booking' => $booking,
             'qrCode' => $qrCode,
-        ])
-        ->format('a4')
-        ->name('Tiket-' . $booking->booking_code . '.pdf')
-        ->download();
+        ]);
+
+        return $pdf->download('Tiket-' . $booking->booking_code . '.pdf');
     }
 }

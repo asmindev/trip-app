@@ -15,6 +15,8 @@ interface Payment {
     xendit_id: string | null;
     checkout_url: string | null;
     payment_method: string | null;
+    payment_type: string | null;
+    payment_channel: string | null;
     status: 'PENDING' | 'PAID' | 'EXPIRED' | 'FAILED';
     amount: string;
     paid_at: string | null;

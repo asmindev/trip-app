@@ -11,9 +11,10 @@ interface MobileBookingActionsProps {
     passengersCount: number;
     discount: number;
     isSubmitting: boolean;
+    onSubmit?: () => void;
 }
 
-export function MobileBookingActions({ total, schedule, passengersCount, discount, isSubmitting }: MobileBookingActionsProps) {
+export function MobileBookingActions({ total, schedule, passengersCount, discount, isSubmitting, onSubmit }: MobileBookingActionsProps) {
     return (
         <div className="fixed inset-x-0 bottom-0 z-50 border-t border-slate-200 bg-white/80 p-4 shadow-[0_-8px_30px_rgb(0,0,0,0.12)] backdrop-blur-xl lg:hidden dark:border-slate-800 dark:bg-slate-900/80">
             <div className="mx-auto flex max-w-md items-center justify-between">
@@ -47,8 +48,9 @@ export function MobileBookingActions({ total, schedule, passengersCount, discoun
                     </Sheet>
 
                     <Button
-                        type="submit"
+                        type="button"
                         disabled={isSubmitting}
+                        onClick={onSubmit}
                         className="h-12 rounded-xl bg-primary px-6 font-black text-white shadow-lg shadow-orange-500/30 hover:bg-primary/90"
                     >
                         {isSubmitting ? (
