@@ -72,9 +72,14 @@ class PaymentService
 
             // Extract Payment Code (VA Number or QR String)
             $paymentCode = $this->extractPaymentCode($result, $type);
-            $expirationDate = $result['payment_method']['virtual_account']['channel_properties']['expires_at']
+            $rawExpirationDate = $result['payment_method']['virtual_account']['channel_properties']['expires_at']
                 ?? $result['payment_method']['qr_code']['channel_properties']['expires_at']
-                ?? now()->addDay();
+                ?? now()->addMinutes(config('app.payment_timeout_minutes', 10));
+
+            // Ensure MySQL DateTime Format (Y-m-d H:i:s)
+            $expirationDate = $rawExpirationDate instanceof \Carbon\Carbon
+                ? $rawExpirationDate->setTimezone(config('app.timezone'))->format('Y-m-d H:i:s')
+                : \Carbon\Carbon::parse($rawExpirationDate)->setTimezone(config('app.timezone'))->format('Y-m-d H:i:s');
 
             // Store in Database
             return DB::transaction(function () use ($booking, $externalId, $result, $type, $channelInfo, $paymentCode, $expirationDate) {
@@ -103,9 +108,9 @@ class PaymentService
     protected function buildPaymentMethod(string $type, string $channelInfo, Booking $booking)
     {
         if ($type === 'VIRTUAL_ACCOUNT') {
-             $channelProperties = new \Xendit\PaymentRequest\VirtualAccountChannelProperties([
+            $channelProperties = new \Xendit\PaymentRequest\VirtualAccountChannelProperties([
                 'customer_name' => $booking->user->name ?? 'Guest User',
-                'expires_at' => now()->addDay()->toIso8601String(),
+                'expires_at' => now()->addMinutes(config('app.payment_timeout_minutes', 10))->toIso8601String(),
             ]);
 
             $virtualAccount = new \Xendit\PaymentRequest\VirtualAccountParameters([
@@ -206,27 +211,92 @@ class PaymentService
             $status = $xenditPayment['status'] ?? null;
 
             if ($status) {
-                DB::transaction(function() use ($payment, $status) {
-                    if ($status === 'SUCCEEDED' && $payment->status !== 'PAID') {
+                return DB::transaction(function () use ($payment, $status, $xenditPayment) {
+                    // Lock payment row to prevent concurrent webhook processing
+                    $payment = Payment::lockForUpdate()->find($payment->id);
+                    $booking = Booking::lockForUpdate()->find($payment->booking_id);
+
+                    // Idempotency Check: unnecessary if status matches
+                    if ($payment->status === 'PAID' && $status === 'SUCCEEDED') {
+                        return 'SUCCEEDED';
+                    }
+
+                    if ($status === 'SUCCEEDED') {
+                        // CRITICAL: Check for overselling / late payment
+                        // If booking is already EXPIRED or CANCELLED, we must check seat availability
+                        // before reactivating it.
+                        if (in_array($booking->payment_status, ['EXPIRED', 'CANCELLED', 'FAILED'])) {
+
+                            $schedule = $booking->schedule()->lockForUpdate()->first();
+
+                            if ($schedule->available_seats < $booking->total_passengers) {
+                                // Overselling detected!
+                                // Mark payment as PAID but booking as REFUND_NEEDED
+                                $payment->update([
+                                    'status' => 'PAID',
+                                    'paid_at' => now(),
+                                    'gateway_response' => $xenditPayment,
+                                ]);
+
+                                $booking->update([
+                                    'payment_status' => 'REFUND_NEEDED', // New status needed in Enum/DB
+                                    // Do NOT decrement seats
+                                ]);
+
+                                Log::alert("OVERSELLING PREVENTED: Booking {$booking->booking_code} received payment but no seats available. Marked for REFUND.");
+                                return 'SUCCEEDED_NO_SEATS';
+                            }
+
+                            // If seats available, reclaim them
+                            $schedule->decrement('available_seats', $booking->total_passengers);
+                        }
+
                         $payment->update([
                             'status' => 'PAID',
                             'paid_at' => now(),
+                            'gateway_response' => $xenditPayment,
                         ]);
-                        // Use booking() relation update to ensure query execution
-                        $payment->booking()->update(['payment_status' => 'PAID']);
-                    } elseif ($status === 'EXPIRED' && $payment->status !== 'EXPIRED') {
-                        $payment->update(['status' => 'EXPIRED']);
-                        $payment->booking()->update(['payment_status' => 'EXPIRED']);
-                    } elseif ($status === 'FAILED') {
-                         $payment->update(['status' => 'FAILED']);
-                         $payment->booking()->update(['payment_status' => 'FAILED']);
-                    }
-                });
 
-                return $status;
+                        $booking->update([
+                            'payment_status' => 'PAID',
+                            'expires_at' => null, // Clear expiration
+                        ]);
+
+                    } elseif ($status === 'EXPIRED') {
+                        if ($payment->status !== 'EXPIRED') {
+                            $payment->update([
+                                'status' => 'EXPIRED',
+                                'gateway_response' => $xenditPayment,
+                            ]);
+
+                            // Only expire booking if it's not already paid (race condition protection)
+                            if ($booking->payment_status !== 'PAID') {
+                                $booking->update(['payment_status' => 'EXPIRED']);
+                                // Note: Seats are released by the Scheduler, or we can ensure they are released here if not already.
+                                // But usually, expiration happens via Scheduler which releases seats.
+                                // If Xendit says expired, it just means THIS payment link expired.
+                                // The booking might still be valid if user generates a NEW payment link.
+                                // So we should NOT necessarily expire the booking unless booking time is also up.
+                                // However, simple flow: expire booking too.
+                            }
+                        }
+                    } elseif ($status === 'FAILED') {
+                         $payment->update([
+                            'status' => 'FAILED',
+                            'gateway_response' => $xenditPayment,
+                         ]);
+
+                         if ($booking->payment_status !== 'PAID') {
+                             $booking->update(['payment_status' => 'FAILED']);
+                         }
+                    }
+
+                    return $status;
+                });
             }
         } catch (\Exception $e) {
             Log::error('Failed to sync payment status: ' . $e->getMessage());
+            throw $e; // Re-throw to allow retry mechanism if called from Queue
         }
 
         return null;

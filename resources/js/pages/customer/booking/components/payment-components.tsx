@@ -3,11 +3,56 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Check, Copy, CreditCard, Landmark, QrCode, Smartphone } from 'lucide-react';
+import { Check, Clock, Copy, CreditCard, Landmark, QrCode, Smartphone } from 'lucide-react';
 import { motion } from 'motion/react';
 import { QRCodeSVG } from 'qrcode.react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
+
+function CountdownTimer({ targetDate, onExpire }: { targetDate: string; onExpire?: () => void }) {
+    const calculateTimeLeft = () => {
+        const difference = +new Date(targetDate) - +new Date();
+        if (difference > 0) {
+            return {
+                hours: Math.floor((difference / (1000 * 60 * 60)) % 24),
+                minutes: Math.floor((difference / 1000 / 60) % 60),
+                seconds: Math.floor((difference / 1000) % 60),
+            };
+        }
+        return null; // Time is up
+    };
+
+    const [timeLeft, setTimeLeft] = useState(calculateTimeLeft());
+    const [hasExpired, setHasExpired] = useState(false);
+
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            const newTimeLeft = calculateTimeLeft();
+            setTimeLeft(newTimeLeft);
+
+            if (!newTimeLeft && !hasExpired) {
+                setHasExpired(true);
+                if (onExpire) onExpire();
+            }
+        }, 1000);
+        return () => clearTimeout(timer);
+    });
+
+    if (!timeLeft) {
+        return <span className="font-bold text-red-600">Waktu Habis</span>;
+    }
+
+    return (
+        <Badge
+            variant="outline"
+            className="flex items-center gap-1 border-red-200 bg-red-50 font-mono text-red-700 dark:border-red-900/30 dark:bg-red-900/20 dark:text-red-400"
+        >
+            <Clock className="size-3" />
+            {timeLeft.hours > 0 && <span>{timeLeft.hours}j </span>}
+            {timeLeft.minutes}m {timeLeft.seconds}s
+        </Badge>
+    );
+}
 
 interface PaymentMethodSelectorProps {
     onSelect: (method: string) => void;
@@ -75,16 +120,17 @@ interface VirtualAccountDisplayProps {
     vaNumber: string;
     expiryDate: string;
     amount: number;
+    onExpire?: () => void;
 }
 
-export function VirtualAccountDisplay({ bankCode, vaNumber, expiryDate, amount }: VirtualAccountDisplayProps) {
+export function VirtualAccountDisplay({ bankCode, vaNumber, expiryDate, amount, onExpire }: VirtualAccountDisplayProps) {
     const copyToClipboard = () => {
         navigator.clipboard.writeText(vaNumber);
         toast.success('VA Number copied to clipboard');
     };
 
     return (
-        <Card className="overflow-hidden border-2 border-primary/20 bg-white shadow-xl dark:bg-slate-900">
+        <Card className="overflow-hidden border-2 border-primary/20 bg-white pt-0 shadow-xl dark:bg-slate-900">
             <CardContent className="p-0">
                 <div className="bg-primary/10 px-6 py-4 dark:bg-primary/5">
                     <h3 className="flex items-center gap-2 font-bold text-primary">
@@ -108,12 +154,7 @@ export function VirtualAccountDisplay({ bankCode, vaNumber, expiryDate, amount }
 
                     <div className="flex justify-center gap-2 text-xs text-slate-500">
                         <span>Berakhir dalam:</span>
-                        <Badge
-                            variant="outline"
-                            className="border-red-200 bg-red-50 text-red-700 dark:border-red-900/30 dark:bg-red-900/20 dark:text-red-400"
-                        >
-                            {new Date(expiryDate).toLocaleString()}
-                        </Badge>
+                        <CountdownTimer targetDate={expiryDate} onExpire={onExpire} />
                     </div>
                 </div>
             </CardContent>
@@ -125,9 +166,10 @@ interface QrDisplayProps {
     qrString: string;
     expiryDate: string;
     amount: number;
+    onExpire?: () => void;
 }
 
-export function QrDisplay({ qrString, expiryDate, amount }: QrDisplayProps) {
+export function QrDisplay({ qrString, expiryDate, amount, onExpire }: QrDisplayProps) {
     return (
         <Card className="overflow-hidden border-2 border-primary/20 bg-white shadow-xl dark:bg-slate-900">
             <CardContent className="p-0">
@@ -157,13 +199,9 @@ export function QrDisplay({ qrString, expiryDate, amount }: QrDisplayProps) {
                         </div>
                     </div>
 
-                    <div className="mt-6">
-                        <Badge
-                            variant="outline"
-                            className="border-red-200 bg-red-50 text-red-700 dark:border-red-900/30 dark:bg-red-900/20 dark:text-red-400"
-                        >
-                            Expires: {new Date(expiryDate).toLocaleString()}
-                        </Badge>
+                    <div className="mt-6 flex justify-center gap-2 text-xs text-slate-500">
+                        <span>Berakhir dalam:</span>
+                        <CountdownTimer targetDate={expiryDate} onExpire={onExpire} />
                     </div>
                 </div>
             </CardContent>

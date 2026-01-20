@@ -86,7 +86,9 @@ export interface Booking {
     user_id: number;
     schedule_id: number;
     booking_date: string;
+    subtotal: number;
     total_amount: number;
+    discount_amount?: number;
     payment_status: 'PENDING' | 'PAID' | 'EXPIRED' | 'FAILED';
     payment?: Payment;
     passengers: Passenger[];

@@ -82,10 +82,10 @@ class HandleInertiaRequests extends Middleware
             'sharedBranches' => $sharedBranches,
             'activeBranch' => $activeBranch,
 
-            'ziggy' => fn() => [
-                ...(new Ziggy)->toArray(),
-                'location' => $request->url(),
-            ],
+            // 'ziggy' => fn() => [
+            //     ...(new Ziggy)->toArray(),
+            //     'location' => $request->url(),
+            // ],
 
             'flash' => fn() => [
                 'type' => session()->has('error')

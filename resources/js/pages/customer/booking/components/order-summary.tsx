@@ -8,13 +8,16 @@ interface OrderSummaryProps {
     schedule: Schedule;
     passengers: number;
     discount?: number;
-    serviceFee?: number;
+    totalAmount?: number;
+    subtotal?: number;
 }
 
-export function OrderSummary({ schedule, passengers, discount = 0, serviceFee = 5000 }: OrderSummaryProps) {
-    const basePrice = parseFloat(schedule.route.pricelists?.[0]?.price_public || '150000');
-    const subtotal = basePrice * passengers;
-    const total = subtotal + serviceFee - discount;
+export function OrderSummary({ schedule, passengers, discount = 0, totalAmount, subtotal: propSubtotal }: OrderSummaryProps) {
+    const basePrice = parseFloat(schedule.route.pricelists?.[0]?.price_public || '0');
+    // If totalAmount is provided (from Booking source of truth), use it.
+    // Otherwise fallback to calculation (e.g. for Create page preview).
+    const subtotal = propSubtotal ?? basePrice * passengers;
+    const total = totalAmount ?? subtotal - discount;
 
     // Parse route name (e.g. "Kendari - Wakatobi")
     const routeParts = schedule.route.name.split(' - ');
@@ -61,10 +64,7 @@ export function OrderSummary({ schedule, passengers, discount = 0, serviceFee = 
                     <span className="text-slate-600 dark:text-slate-400">Dewasa × {passengers}</span>
                     <span className="text-slate-900 dark:text-white">{formatCurrency(subtotal)}</span>
                 </div>
-                <div className="flex justify-between">
-                    <span className="text-slate-600 dark:text-slate-400">Biaya Layanan</span>
-                    <span className="text-slate-900 dark:text-white">{formatCurrency(serviceFee)}</span>
-                </div>
+                {/* Service Fee removed to match backend logic */}
                 {discount > 0 && (
                     <div className="flex justify-between">
                         <span className="text-green-600 dark:text-green-400">Diskon (Promo)</span>

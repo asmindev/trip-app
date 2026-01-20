@@ -58,7 +58,7 @@ class BookingService
                     'total_amount' => $pricing['total_amount'],
                     'total_passengers' => $totalPassengers,
                     'payment_status' => 'PENDING',
-                    'expires_at' => now()->addMinutes(60),
+                    'expires_at' => now()->addMinutes(config('app.payment_timeout_minutes', 10)),
                 ]);
 
                 foreach ($data->passengers as $pax) {

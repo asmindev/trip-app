@@ -113,7 +113,7 @@ class BookingController extends Controller
             }
 
             // Refresh booking to get latest data
-            $booking->refresh();
+            $booking->refresh()->load(['payment', 'passengers', 'schedule.route', 'schedule.ship', 'schedule.tripType']);
         } catch (\Exception $e) {
             Log::error('Failed to sync payment status in controller: ' . $e->getMessage());
         }

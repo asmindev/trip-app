@@ -6,7 +6,7 @@ import { useEcho } from '@laravel/echo-react';
 import axios from 'axios';
 import { CheckCircle, Copy, CreditCard, Loader2, Shield, XCircle } from 'lucide-react';
 import { motion } from 'motion/react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 import { BookingHeader } from './components/booking-header';
 import { OrderSummary } from './components/order-summary';
@@ -25,6 +25,13 @@ export default function PaymentPage({ booking }: Props) {
     const [status, setStatus] = useState<string>(booking.payment?.status || 'PENDING');
     const [payment, setPayment] = useState<Payment | undefined>(booking.payment);
     const [isProcessing, setIsProcessing] = useState(false);
+
+    useEffect(() => {
+        if (booking.payment) {
+            setPayment(booking.payment);
+            setStatus(booking.payment.status);
+        }
+    }, [booking.payment]);
 
     // Real-time updates
     useEcho(
@@ -63,12 +70,15 @@ export default function PaymentPage({ booking }: Props) {
             }
         } finally {
             setIsProcessing(false);
+            // Refresh local data to ensure everything is in sync
+            router.reload({ only: ['booking'] });
         }
     };
 
     const copyBookingCode = () => {
-        // console.log(booking.payment);
+        console.log(booking);
         const xendit_id = booking.payment?.xendit_id || '';
+        console.log(xendit_id);
         navigator.clipboard
             .writeText(xendit_id)
             .then(() => {
@@ -157,6 +167,7 @@ export default function PaymentPage({ booking }: Props) {
                                                         vaNumber={payment.payment_code}
                                                         expiryDate={payment.expiration_date}
                                                         amount={payment.amount}
+                                                        onExpire={() => setStatus('EXPIRED')}
                                                     />
                                                 )}
 
@@ -165,6 +176,7 @@ export default function PaymentPage({ booking }: Props) {
                                                         qrString={payment.payment_code}
                                                         expiryDate={payment.expiration_date}
                                                         amount={payment.amount}
+                                                        onExpire={() => setStatus('EXPIRED')}
                                                     />
                                                 )}
 
@@ -256,7 +268,9 @@ export default function PaymentPage({ booking }: Props) {
                                 <OrderSummary
                                     schedule={booking.schedule}
                                     passengers={booking.passengers.length}
-                                    discount={0} // Assuming discount is baked into booking total, or passed separately if needed
+                                    discount={booking.discount_amount || 0}
+                                    subtotal={booking.subtotal}
+                                    totalAmount={booking.total_amount}
                                 />
 
                                 <div className="rounded-2xl border border-blue-100 bg-blue-50 p-4 dark:border-blue-900/30 dark:bg-blue-900/20">

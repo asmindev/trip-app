@@ -72,7 +72,7 @@ class PaymentController extends Controller
             Log::info('simulate payment result: ' . json_encode($result));
 
             return redirect()->back()->with('success', 'Payment simulated successfully! Response: ' . json_encode($result));
-        } catch (\Xendit\ApiException $e) {
+        } catch (ApiException $e) {
             Log::error('simulate payment failed (API): ' . $e->getMessage());
             Log::error('Response Header: ' . json_encode($e->getResponseHeaders()));
             Log::error('Response Body: ' . $e->getResponseBody());

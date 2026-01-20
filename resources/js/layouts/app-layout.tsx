@@ -154,7 +154,7 @@ export default function AppLayout({ children }: AppLayoutProps) {
                         <ThemeToggle />
 
                         {auth.user ? (
-                            <DropdownMenu theme="custom">
+                            <DropdownMenu>
                                 <DropdownMenuTrigger asChild>
                                     <Button
                                         variant="ghost"

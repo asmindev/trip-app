@@ -10,6 +10,13 @@ use Illuminate\Support\Facades\Log;
 
 class XenditWebhookController extends Controller
 {
+    protected $paymentService;
+
+    public function __construct(\App\Services\PaymentService $paymentService)
+    {
+        $this->paymentService = $paymentService;
+    }
+
     public function handle(Request $request)
     {
         $token = $request->header('x-callback-token');
@@ -22,29 +29,15 @@ class XenditWebhookController extends Controller
         $data = $request->all();
         // Log::info('Xendit Webhook:', $data);
 
-        // We are interested in "invoice.paid" or "invoice.expired"
-        // Adjust based on Xendit's actual payload structure (usually just the object for Invoice callback)
-        // If it's the newer callback version, check documentation. Assuming Invoice Callback.
-
         $event = $data['event'] ?? null;
-        $status = null;
         $externalId = null;
 
         // Handle Payment Request Events
-        if ($event === 'payment.succeeded') {
-            $status = 'PAID';
-            $externalId = $data['data']['reference_id'] ?? null;
-            $paymentMethod = $data['data']['payment_method']['type'] ?? null;
-        } elseif ($event === 'payment.failed') {
-            $status = 'FAILED';
-            $externalId = $data['data']['reference_id'] ?? null;
-        } elseif ($event === 'payment_method.expired') {
-            $status = 'EXPIRED';
+        if ($event === 'payment.succeeded' || $event === 'payment.failed' || $event === 'payment_method.expired') {
             $externalId = $data['data']['reference_id'] ?? null;
         } else {
             // Fallback for Invoice Legacy (if any) or unknown
             $externalId = $data['external_id'] ?? null;
-            $status = $data['status'] ?? null;
         }
 
         if (!$externalId) {
@@ -57,34 +50,23 @@ class XenditWebhookController extends Controller
             return response()->json(['message' => 'Payment not found'], 404);
         }
 
-        // Avoid re-processing if already final
-        if (in_array($payment->status, ['PAID', 'EXPIRED', 'FAILED'])) {
-             return response()->json(['message' => 'Already processed']);
+        // Delegate to service to handle transaction, locking, and creating/updating booking status
+        // This calculates the status from Xendit API directly (safest)
+        try {
+            $this->paymentService->syncPaymentStatus($payment);
+        } catch (\Exception $e) {
+            Log::error('Webhook processing failed: ' . $e->getMessage());
+            return response()->json(['message' => 'Internal Server Error'], 500);
         }
 
-        if ($status === 'PAID') {
-            $payment->update([
-                'status' => 'PAID',
-                'paid_at' => now(),
-                'gateway_response' => $data,
-            ]);
+        // Broadcast Event is done in Service or we can do it here if service doesn't?
+        // Service updates DB. We might want to broadcast here.
+        // Actually, let's keep it simple. If service updates, it's done.
+        // Broadcasting should probably be inside the service too, or monitored via Observer.
+        // For now, let's re-dispatch the event if needed, but since we don't know if it CHANGED,
+        // we might spam events.
+        // Better: The Service handles the business logic. We just return success.
 
-            // Update Booking status too
-             $payment->booking()->update(['payment_status' => 'PAID']);
-
-        } elseif ($status === 'EXPIRED') {
-            $payment->update([
-                'status' => 'EXPIRED',
-                'gateway_response' => $data,
-            ]);
-        } elseif ($status === 'FAILED') {
-            $payment->update([
-                'status' => 'FAILED',
-                'gateway_response' => $data,
-            ]);
-        }
-
-        // Broadcast Event
         broadcast(new PaymentUpdated($payment));
 
         return response()->json(['message' => 'Success']);

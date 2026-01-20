@@ -3,16 +3,22 @@ import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbP
 import { Separator } from '@/components/ui/separator';
 import { SidebarInset, SidebarProvider, SidebarTrigger } from '@/components/ui/sidebar';
 import { AdminSidebar } from '@/sidebar/admin-sidebar';
-import { usePage } from '@inertiajs/react';
+import { Link, usePage } from '@inertiajs/react';
 import { useEffect } from 'react';
 import { toast } from 'sonner';
+
+interface BreadcrumbItemType {
+    title: string;
+    url: string;
+}
 
 interface AdminLayoutProps {
     children: React.ReactNode;
     title?: string;
+    breadcrumbs?: BreadcrumbItemType[];
 }
 
-export default function AdminLayout({ children, title }: AdminLayoutProps) {
+export default function AdminLayout({ children, title, breadcrumbs }: AdminLayoutProps) {
     const { props } = usePage();
 
     useEffect(() => {
@@ -36,16 +42,31 @@ export default function AdminLayout({ children, title }: AdminLayoutProps) {
                         <Breadcrumb>
                             <BreadcrumbList>
                                 <BreadcrumbItem className="hidden md:block">
-                                    <BreadcrumbLink href="#">Trip App</BreadcrumbLink>
+                                    <BreadcrumbLink href={route('admin.dashboard')}>Trip App</BreadcrumbLink>
                                 </BreadcrumbItem>
-                                {title && (
-                                    <>
-                                        <BreadcrumbSeparator className="hidden md:block" />
-                                        <BreadcrumbItem>
-                                            <BreadcrumbPage>{title}</BreadcrumbPage>
-                                        </BreadcrumbItem>
-                                    </>
-                                )}
+                                {breadcrumbs
+                                    ? breadcrumbs.map((crumb, index) => (
+                                          <div key={index} className="flex items-center gap-2">
+                                              <BreadcrumbSeparator className="hidden md:block" />
+                                              <BreadcrumbItem>
+                                                  {crumb.url !== '#' ? (
+                                                      <BreadcrumbLink asChild>
+                                                          <Link href={crumb.url}>{crumb.title}</Link>
+                                                      </BreadcrumbLink>
+                                                  ) : (
+                                                      <BreadcrumbPage>{crumb.title}</BreadcrumbPage>
+                                                  )}
+                                              </BreadcrumbItem>
+                                          </div>
+                                      ))
+                                    : title && (
+                                          <>
+                                              <BreadcrumbSeparator className="hidden md:block" />
+                                              <BreadcrumbItem>
+                                                  <BreadcrumbPage>{title}</BreadcrumbPage>
+                                              </BreadcrumbItem>
+                                          </>
+                                      )}
                             </BreadcrumbList>
                         </Breadcrumb>
                         <div className="ml-auto">

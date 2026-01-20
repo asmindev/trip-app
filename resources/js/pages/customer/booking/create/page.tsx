@@ -73,16 +73,22 @@ export default function BookingCreatePage({ schedule }: PageProps) {
     const { handleSubmit, watch } = methods;
     const passengers = watch('passengers');
     const basePrice = parseFloat(schedule.route?.pricelists?.[0]?.price_public || '150000');
-    const total = basePrice * passengers.length + 5000 - discount;
+    const total = basePrice * passengers.length - discount;
 
     const onSubmit = async (data: BookingFormValues) => {
         setIsSubmitting(true);
         try {
-            router.post(route('booking.store'), {
-                schedule_id: schedule.id,
-                passengers: data.passengers,
-                promo_code: appliedPromo,
-            });
+            router.post(
+                route('booking.store'),
+                {
+                    schedule_id: schedule.id,
+                    passengers: data.passengers,
+                    promo_code: appliedPromo,
+                },
+                {
+                    replace: true, // Prevent going back to this form after success
+                },
+            );
         } catch {
             setIsSubmitting(false);
         } finally {

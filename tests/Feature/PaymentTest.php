@@ -323,20 +323,68 @@ class PaymentTest extends TestCase
         $service->method('getStatus')
             ->willThrowException(new \Exception('Xendit Error'));
 
-        // Should not throw exception, just log error and return null
+        // Should throw exception now to allow Queue retry
+        $this->expectException(\Exception::class);
+        $this->expectExceptionMessage('Xendit Error');
+
         $result = $service->syncPaymentStatus($payment);
 
-        $this->assertNull($result);
         $this->assertEquals('PENDING', $payment->fresh()->status);
     }
 
-    public function test_status_case_insensitivity_handling()
+    public function test_late_payment_overselling_prevention()
     {
-        // Ensure status check handles whatever Xendit gives (usually uppercase)
+        // 1. Setup: Booking is EXPIRED
+        $this->booking->update(['payment_status' => 'EXPIRED']);
+
+        // 2. Setup: No seats available (imagine someone else took them)
+        $schedule = $this->booking->schedule;
+        $schedule->update(['available_seats' => 0]);
+
         $payment = Payment::create([
             'booking_id' => $this->booking->id,
-            'external_id' => 'TEST-CASE',
-            'xendit_id' => 'pr-test-case',
+            'external_id' => 'TEST-LATE-FULL',
+            'xendit_id' => 'pr-test-late-full',
+            'amount' => 100000,
+            'status' => 'PENDING', // Payment was pending when user paid
+            'payment_type' => 'VIRTUAL_ACCOUNT',
+            'payment_channel' => 'BCA'
+        ]);
+
+        $service = $this->getMockBuilder(PaymentService::class)
+            ->onlyMethods(['getStatus'])
+            ->getMock();
+
+        $service->method('getStatus')
+            ->willReturn(['status' => 'SUCCEEDED']);
+
+        // 3. Execute
+        $result = $service->syncPaymentStatus($payment);
+
+        // 4. Assert
+        $this->assertEquals('SUCCEEDED_NO_SEATS', $result);
+
+        $payment->refresh();
+        $this->assertEquals('PAID', $payment->status); // Money received
+
+        $this->booking->refresh();
+        $this->assertEquals('REFUND_NEEDED', $this->booking->payment_status); // But no ticket
+
+        $schedule->refresh();
+        $this->assertEquals(0, $schedule->available_seats); // Seats not touched
+    }
+
+    public function test_late_payment_success_if_seats_available()
+    {
+        // 1. Setup: Booking is EXPIRED but seats are available
+        $this->booking->update(['payment_status' => 'EXPIRED']);
+        $schedule = $this->booking->schedule;
+        $schedule->update(['available_seats' => 5]); // Plenty of seats
+
+        $payment = Payment::create([
+            'booking_id' => $this->booking->id,
+            'external_id' => 'TEST-LATE-OK',
+            'xendit_id' => 'pr-test-late-ok',
             'amount' => 100000,
             'status' => 'PENDING',
             'payment_type' => 'VIRTUAL_ACCOUNT',
@@ -348,19 +396,20 @@ class PaymentTest extends TestCase
             ->getMock();
 
         $service->method('getStatus')
-            ->willReturn(['status' => 'succeeded']); // lowercase
+            ->willReturn(['status' => 'SUCCEEDED']);
 
-        // Logic compares strict strings 'SUCCEEDED'. If Xendit returns lower, it might fail.
-        // Let's see if our logic handles it or if strict comparison fails.
-        // Our Service uses: if ($status === 'SUCCEEDED')
-
+        // 3. Execute
         $service->syncPaymentStatus($payment);
 
-        // Expect failure to update if we don't normalize.
-        // This is actually a behavior test. Xendit docs say uppercase.
-        // If this test fails to update, it matches code.
-
+        // 4. Assert
         $payment->refresh();
-        $this->assertEquals('PENDING', $payment->status);
+        $this->assertEquals('PAID', $payment->status);
+
+        $this->booking->refresh();
+        $this->assertEquals('PAID', $this->booking->payment_status);
+        $this->assertNull($this->booking->expires_at);
+
+        $schedule->refresh();
+        $this->assertEquals(4, $schedule->available_seats); // 5 - 1 = 4
     }
 }

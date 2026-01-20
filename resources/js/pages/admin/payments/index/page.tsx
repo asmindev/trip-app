@@ -75,7 +75,7 @@ export default function PaymentIndex({ payments, stats, filters }: PaymentIndexP
     );
 
     return (
-        <AdminLayout title="Payment Management">
+        <AdminLayout breadcrumbs={[{ title: 'Payments', url: route('admin.payments.index') }]}>
             <Head title="Payments" />
 
             <div className="space-y-6">
