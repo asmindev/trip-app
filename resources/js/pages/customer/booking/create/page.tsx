@@ -165,6 +165,7 @@ export default function BookingCreatePage({ schedule }: PageProps) {
                                                     control={methods.control}
                                                     bookerName={auth.user?.name}
                                                     bookerPhone={auth.user?.phone}
+                                                    bookerEmail={auth.user?.email}
                                                 />
                                             </CardContent>
                                         </Card>

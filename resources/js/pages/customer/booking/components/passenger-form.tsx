@@ -16,9 +16,10 @@ interface PassengerFormProps {
     bookerName?: string;
     bookerIdCard?: string;
     bookerPhone?: string;
+    bookerEmail?: string;
 }
 
-export function PassengerForm({ control, bookerName, bookerIdCard, bookerPhone }: PassengerFormProps) {
+export function PassengerForm({ control, bookerName, bookerIdCard, bookerPhone, bookerEmail }: PassengerFormProps) {
     const {
         register,
         setValue,
@@ -39,6 +40,9 @@ export function PassengerForm({ control, bookerName, bookerIdCard, bookerPhone }
             }
             if (bookerPhone) {
                 setValue(`passengers.${index}.whatsapp`, bookerPhone);
+            }
+            if (bookerEmail) {
+                setValue(`passengers.${index}.email`, bookerEmail);
             }
             setValue(`passengers.${index}.is_booker`, true);
         } else {
