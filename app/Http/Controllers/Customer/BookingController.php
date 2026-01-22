@@ -12,6 +12,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Log;
 use Inertia\Inertia;
+use Spatie\LaravelPdf\Facades\Pdf;
 use Spatie\QueryBuilder\QueryBuilder;
 use Spatie\QueryBuilder\AllowedFilter;
 use App\Data\CreateBookingData; // Import DTO
@@ -157,12 +158,14 @@ class BookingController extends Controller
         // Load booking relations
         $booking->load(['passengers', 'schedule.route', 'schedule.ship', 'schedule.tripType']);
 
-        // Generate PDF using DomPDF
-        $pdf = \Barryvdh\DomPDF\Facade\Pdf::loadView('pdf.ticket', [
+        // Generate PDF using Spatie Laravel PDF
+        $pdf = Pdf::view('pdf.ticket', [
             'booking' => $booking,
             'qrCode' => $qrCode,
-        ]);
+        ])
+            ->format('A4')
+            ->name('Tiket-' . $booking->booking_code . '.pdf');
 
-        return $pdf->download('Tiket-' . $booking->booking_code . '.pdf');
+        return $pdf->download();
     }
 }

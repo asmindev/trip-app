@@ -2,158 +2,175 @@
 <html>
 <head>
     <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>E-Ticket - {{ $booking->booking_code }}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
         body {
-            font-family: 'Helvetica', sans-serif;
-            color: #333;
-            line-height: 1.6;
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
         }
-        .container {
+
+        /* Luxury accents */
+        .accent-line {
+            height: 2px;
+            background: linear-gradient(90deg, #18181b 0%, #71717a 100%);
+        }
+
+        /* Ensure layout is sharp in PDF */
+        .ticket-container {
             width: 100%;
             max-width: 800px;
             margin: 0 auto;
-            border: 1px solid #ddd;
-            padding: 20px;
-        }
-        .header {
-            text-align: center;
-            border-bottom: 2px solid #000;
-            padding-bottom: 20px;
-            margin-bottom: 20px;
-        }
-        .header h1 {
-            margin: 0;
-            color: #d97706; /* Amber-600 to match theme */
-            text-transform: uppercase;
-        }
-        .header p {
-            margin: 5px 0 0;
-            font-size: 14px;
-        }
-        .booking-info {
-            display: table;
-            width: 100%;
-            margin-bottom: 20px;
-        }
-        .info-group {
-            display: table-cell;
-            width: 50%;
-            vertical-align: top;
-        }
-        .label {
-            font-weight: bold;
-            font-size: 12px;
-            color: #666;
-            text-transform: uppercase;
-        }
-        .value {
-            font-size: 16px;
-            margin-bottom: 10px;
-        }
-        .table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 20px;
-        }
-        .table th, .table td {
-            border: 1px solid #ddd;
-            padding: 10px;
-            text-align: left;
-        }
-        .table th {
-            background-color: #f3f4f6;
-            font-weight: bold;
-        }
-        .qr-section {
-            text-align: center;
-            margin-top: 30px;
-            padding-top: 20px;
-            border-top: 2px dashed #ddd;
-        }
-        .footer {
-            margin-top: 30px;
-            text-align: center;
-            font-size: 12px;
-            color: #999;
-        }
-        .badge {
-            display: inline-block;
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 12px;
-            font-weight: bold;
-        }
-        .badge-paid {
-            background-color: #d1fae5;
-            color: #065f46;
+            background: white;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
         }
     </style>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        luxury: {
+                            black: '#18181b', // Zinc 900
+                            dark: '#27272a',  // Zinc 800
+                            gray: '#71717a',  // Zinc 500
+                            light: '#f4f4f5', // Zinc 100
+                        }
+                    }
+                }
+            }
+        }
+    </script>
 </head>
-<body>
-    <div class="container">
-        <div class="header">
-            <h1>Kapal Trip</h1>
-            <p>Tiket Kapal Wisata Nusantara</p>
+<body class="p-8 lg:p-12 text-luxury-black">
+
+    <!-- Ticket Container -->
+    <div class="ticket-container rounded-none overflow-hidden pb-12">
+
+        <!-- Header: Minimalist & Clean -->
+        <div class="px-10 pt-10 pb-6 flex justify-between items-start">
+            <div>
+                <h1 class="text-3xl font-light tracking-tight text-luxury-black uppercase">Kapal Trip</h1>
+                <p class="text-xs text-luxury-gray tracking-[0.2em] uppercase mt-1">Luxury Sea Transport</p>
+            </div>
+            <div class="text-right">
+                <p class="text-[10px] uppercase tracking-widest text-luxury-gray mb-1">Boarding Pass</p>
+                <div class="text-xl font-bold font-mono tracking-wider">{{ $booking->booking_code }}</div>
+            </div>
         </div>
 
-        <div class="booking-info">
-            <div class="info-group">
-                <div class="label">Kode Booking</div>
-                <div class="value">{{ $booking->booking_code }}</div>
+        <div class="accent-line w-full"></div>
 
-                <div class="label">Tanggal Pemesanan</div>
-                <div class="value">{{ $booking->created_at->format('d M Y H:i') }}</div>
+        <!-- Main Info Area -->
+        <div class="p-10">
 
-                <div class="label">Status</div>
-                <div class="value">
-                    <span class="badge badge-paid">LUNAS</span>
+            <!-- Route Info: Big & Bold -->
+            <div class="flex items-center justify-between mb-12">
+                <div class="flex-1 overflow-hidden">
+                    <p class="text-[10px] uppercase tracking-widest text-luxury-gray mb-2 whitespace-nowrap">Asal</p>
+                    <h2 class="text-2xl font-semibold text-luxury-black whitespace-nowrap truncate">Kendari</h2>
+                </div>
+                <div class="flex-0 px-4 flex flex-col items-center">
+                    <div class="w-16 h-px bg-luxury-gray/30 mb-2"></div>
+                    <span class="text-luxury-gray text-xs tracking-wider whitespace-nowrap">{{ $booking->schedule->ship->name }}</span>
+                </div>
+                <div class="flex-1 text-right overflow-hidden">
+                    <p class="text-[10px] uppercase tracking-widest text-luxury-gray mb-2 whitespace-nowrap">Tujuan</p>
+                    <h2 class="text-2xl font-semibold text-luxury-black whitespace-nowrap truncate">{{ $booking->schedule->route->name }}</h2>
                 </div>
             </div>
-            <div class="info-group">
-                <div class="label">Kapal</div>
-                <div class="value">{{ $booking->schedule->ship->name }}</div>
 
-                <div class="label">Rute</div>
-                <div class="value">{{ $booking->schedule->route->name }}</div>
+            <!-- Grid Details: Clear Hierarchy -->
+            <div class="grid grid-cols-4 gap-8 mb-12 border-b border-gray-100 pb-12">
 
-                <div class="label">Waktu Keberangkatan</div>
-                <div class="value">{{ \Carbon\Carbon::parse($booking->schedule->departure_date)->format('d M Y') }} - {{ $booking->schedule->departure_time }}</div>
+                <div class="col-span-1">
+                    <p class="text-[10px] uppercase tracking-widest text-luxury-gray mb-1 whitespace-nowrap">Tanggal</p>
+                    <p class="text-lg font-medium text-luxury-black whitespace-nowrap">
+                        {{ \Carbon\Carbon::parse($booking->schedule->departure_date)->isoFormat('D MMMM Y') }}
+                    </p>
+                    <p class="text-xs text-luxury-gray whitespace-nowrap">{{ \Carbon\Carbon::parse($booking->schedule->departure_date)->format('Y') }}</p>
+                </div>
+
+                <div class="col-span-1">
+                    <p class="text-[10px] uppercase tracking-widest text-luxury-gray mb-1 whitespace-nowrap">Jam</p>
+                    <p class="text-lg font-medium text-luxury-black whitespace-nowrap">{{ $booking->schedule->departure_time }}</p>
+                    <p class="text-xs text-luxury-gray whitespace-nowrap">WITA</p>
+                </div>
+
+                <div class="col-span-1">
+                    <p class="text-[10px] uppercase tracking-widest text-luxury-gray mb-1 whitespace-nowrap">Status</p>
+                    @if($booking->payment_status === 'PAID')
+                        <span class="inline-flex items-center px-2 py-1 bg-black text-white text-[10px] font-bold tracking-widest uppercase whitespace-nowrap">
+                            Lunas
+                        </span>
+                    @else
+                        <span class="text-base font-medium text-luxury-black whitespace-nowrap">{{ $booking->payment_status }}</span>
+                    @endif
+                </div>
+
+                <div class="col-span-1">
+                    <p class="text-[10px] uppercase tracking-widest text-luxury-gray mb-1 whitespace-nowrap">Penumpang</p>
+                    <p class="text-lg font-medium text-luxury-black whitespace-nowrap">{{ $booking->passengers->count() }} Orang</p>
+                </div>
             </div>
-        </div>
 
-        <h3>Detail Penumpang</h3>
-        <table class="table">
-            <thead>
-                <tr>
-                    <th>No</th>
-                    <th>Nama Lengkap</th>
-                    <th>Jenis Kelamin</th>
-                    <th>Kategori</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach($booking->passengers as $index => $passenger)
-                <tr>
-                    <td style="width: 40px; text-align: center;">{{ $index + 1 }}</td>
-                    <td>{{ $passenger->name }}</td>
-                    <td>{{ $passenger->gender == 'L' ? 'Laki-laki' : 'Perempuan' }}</td>
-                    <td>{{ $passenger->tripType?->name ?? 'Umum' }}</td>
-                </tr>
-                @endforeach
-            </tbody>
-        </table>
+            <!-- Passengers Table: Clean & Light -->
+            <div class="mb-12">
+                <div class="flex items-center gap-4 mb-6">
+                    <h3 class="text-sm font-bold uppercase tracking-widest text-luxury-black whitespace-nowrap">Daftar Penumpang</h3>
+                    <div class="flex-1 h-px bg-gray-100"></div>
+                </div>
 
-        <div class="qr-section">
-            <p style="margin-bottom: 15px; font-weight: bold;">Scan QR Code ini saat boarding</p>
-            <img src="{{ $qrCode }}" alt="QR Code" style="width: 150px; height: 150px;">
-            <p style="margin-top: 10px; font-size: 12px; color: #666;">{{ $booking->booking_code }}</p>
-        </div>
+                <table class="w-full text-left">
+                    <thead>
+                        <tr>
+                            <th class="pb-3 text-[10px] font-bold uppercase tracking-wider text-luxury-gray w-12 whitespace-nowrap">No</th>
+                            <th class="pb-3 text-[10px] font-bold uppercase tracking-wider text-luxury-gray whitespace-nowrap">Nama Penumpang</th>
+                            <th class="pb-3 text-[10px] font-bold uppercase tracking-wider text-luxury-gray whitespace-nowrap">L/P</th>
+                            <th class="pb-3 text-[10px] font-bold uppercase tracking-wider text-luxury-gray text-right whitespace-nowrap">Kelas</th>
+                        </tr>
+                    </thead>
+                    <tbody class="text-sm">
+                        @foreach($booking->passengers as $index => $passenger)
+                        <tr class="border-b border-gray-50 last:border-0 hover:bg-gray-50 transition-colors">
+                            <td class="py-3 text-luxury-gray whitespace-nowrap">{{ $index + 1 }}</td>
+                            <td class="py-3 font-medium text-luxury-black capitalize whitespace-nowrap truncate max-w-[200px]">{{ strtolower($passenger->name) }}</td>
+                            <td class="py-3 text-luxury-gray whitespace-nowrap">{{ $passenger->gender == 'L' ? 'Laki-laki' : 'Perempuan' }}</td>
+                            <td class="py-3 text-right text-luxury-black font-medium whitespace-nowrap">{{ $passenger->tripType?->name ?? 'Reguler' }}</td>
+                        </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
 
-        <div class="footer">
-            <p>Terima kasih telah menggunakan layanan Kapal Trip.</p>
-            <p>Harap datang 30 menit sebelum keberangkatan.</p>
+            <!-- Footer & QR: Split Layout -->
+            <div class="flex items-end justify-between pt-6 border-t border-dashed border-gray-200">
+                <div class="max-w-md">
+                    <p class="text-[10px] text-luxury-gray uppercase tracking-wider mb-2 whitespace-nowrap">Informasi Penting</p>
+                    <p class="text-xs text-gray-500 leading-relaxed">
+                        Mohon tiba di pelabuhan setidaknya 30 menit sebelum keberangkatan.<br>
+                        Tunjukkan e-ticket ini bersama kartu identitas (KTP/Passport) saat boarding.
+                    </p>
+                </div>
+
+                <div class="text-center">
+                    <div class="mb-2 p-1 bg-white border border-gray-100 inline-block">
+                        <img src="{{ $qrCode }}" alt="QR" class="w-24 h-24 object-contain opacity-90 grayscale">
+                    </div>
+                </div>
+            </div>
+
         </div>
     </div>
+
+    <div class="text-center mt-6">
+        <p class="text-[10px] text-gray-400 font-mono whitespace-nowrap">Dicetak pada {{ now()->isoFormat('D MMMM Y H:mm:s') }} • REF: {{ $booking->booking_code }}</p>
+    </div>
+
 </body>
 </html>
