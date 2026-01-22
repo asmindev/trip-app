@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Events\PaymentUpdated;
 use App\Http\Controllers\Controller;
 use App\Models\Payment;
+use App\Services\PaymentService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
@@ -12,7 +13,7 @@ class XenditWebhookController extends Controller
 {
     protected $paymentService;
 
-    public function __construct(\App\Services\PaymentService $paymentService)
+    public function __construct(PaymentService $paymentService)
     {
         $this->paymentService = $paymentService;
     }
@@ -45,9 +46,27 @@ class XenditWebhookController extends Controller
             return response()->json(['message' => 'No External ID'], 400);
         }
 
+        // Handle Xendit Test Webhook (Dashboard "Test" button)
+        if (($data['business_id'] ?? '') === 'sample_business_id') {
+            Log::info('Xendit Webhook: Test Event detected and ignored.');
+            return response()->json(['message' => 'Test Event Processed']);
+        }
+
         $payment = Payment::where('external_id', $externalId)->first();
 
         if (!$payment) {
+            Log::info("Xendit Webhook: Payment not found by External ID: $externalId. Trying fallback via Payment Method ID...");
+
+            // Fallback: Check if this is a Payment Method event (e.g., payment_method.expired)
+            // The 'id' in data might match 'gateway_response->payment_method->id'
+            $dataId = $data['data']['id'] ?? null;
+            if ($dataId && str_starts_with($dataId, 'pm-')) {
+                 $payment = Payment::whereJsonContains('gateway_response->payment_method->id', $dataId)->first();
+            }
+        }
+
+        if (!$payment) {
+            Log::warning("Xendit Webhook: Payment not found for External ID: $externalId OR Data ID: " . ($data['data']['id'] ?? 'N/A'));
             return response()->json(['message' => 'Payment not found'], 404);
         }
 
