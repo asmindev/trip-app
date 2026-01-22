@@ -27,20 +27,21 @@ class XenditWebhookController extends Controller
         }
 
         $data = $request->all();
-        // Log::info('Xendit Webhook:', $data);
+        Log::info('Xendit Webhook Received:', $data);
 
         $event = $data['event'] ?? null;
-        $externalId = null;
 
-        // Handle Payment Request Events
-        if ($event === 'payment.succeeded' || $event === 'payment.failed' || $event === 'payment_method.expired') {
-            $externalId = $data['data']['reference_id'] ?? null;
-        } else {
-            // Fallback for Invoice Legacy (if any) or unknown
-            $externalId = $data['external_id'] ?? null;
-        }
+        // Robust External ID Extraction
+        // 1. Payment Request / V3 (data.reference_id)
+        // 2. Legacy Invoice / FVA (external_id)
+        // 3. Fallback (reference_id)
+        $externalId = $data['data']['reference_id']
+                   ?? $data['external_id']
+                   ?? $data['reference_id']
+                   ?? null;
 
         if (!$externalId) {
+            Log::warning('Xendit Webhook: No External ID found in payload');
             return response()->json(['message' => 'No External ID'], 400);
         }
 
