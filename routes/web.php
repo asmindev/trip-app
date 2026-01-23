@@ -94,7 +94,7 @@ Route::middleware('auth')->group(function () {
             return Inertia::render('operator/dashboard/index');
         })->name('dashboard');
 
-        // Route Scan (Nanti dibuat)
-        // Route::get('/scan', [ScanController::class, 'index'])->name('scan.index');
+        // Route Scan
+        Route::get('/scan', [\App\Http\Controllers\Operator\ScanController::class, 'index'])->name('scan.index');
     });
 });

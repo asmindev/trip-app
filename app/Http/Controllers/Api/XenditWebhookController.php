@@ -20,22 +20,21 @@ class XenditWebhookController extends Controller
 
     public function handle(Request $request)
     {
-        $token = $request->header('x-callback-token');
-        $verificationToken = env('XENDIT_WEBHOOK_VERIFICATION_TOKEN');
-
-        if ($token !== $verificationToken) {
+        // 1. Verify Token
+        if ($request->header('x-callback-token') !== config('services.xendit.webhook_token')) {
             return response()->json(['message' => 'Invalid Verification Token'], 403);
         }
 
         $data = $request->all();
         Log::info('Xendit Webhook Received:', $data);
 
-        $event = $data['event'] ?? null;
+        // 2. Identify Test Events
+        if (($data['business_id'] ?? '') === 'sample_business_id') {
+            Log::info('Xendit Webhook: Test Event detected and ignored.');
+            return response()->json(['message' => 'Test Event Processed']);
+        }
 
-        // Robust External ID Extraction
-        // 1. Payment Request / V3 (data.reference_id)
-        // 2. Legacy Invoice / FVA (external_id)
-        // 3. Fallback (reference_id)
+        // 3. Robust External ID Extraction
         $externalId = $data['data']['reference_id']
                    ?? $data['external_id']
                    ?? $data['reference_id']
@@ -46,32 +45,23 @@ class XenditWebhookController extends Controller
             return response()->json(['message' => 'No External ID'], 400);
         }
 
-        // Handle Xendit Test Webhook (Dashboard "Test" button)
-        if (($data['business_id'] ?? '') === 'sample_business_id') {
-            Log::info('Xendit Webhook: Test Event detected and ignored.');
-            return response()->json(['message' => 'Test Event Processed']);
-        }
-
+        // 4. Find Payment (Primary: External ID, Fallback: Payment Method ID)
         $payment = Payment::where('external_id', $externalId)->first();
 
         if (!$payment) {
-            Log::info("Xendit Webhook: Payment not found by External ID: $externalId. Trying fallback via Payment Method ID...");
-
-            // Fallback: Check if this is a Payment Method event (e.g., payment_method.expired)
-            // The 'id' in data might match 'gateway_response->payment_method->id'
             $dataId = $data['data']['id'] ?? null;
             if ($dataId && str_starts_with($dataId, 'pm-')) {
+                 Log::info("Xendit Webhook: Retrying lookup via Payment Method ID: $dataId");
                  $payment = Payment::whereJsonContains('gateway_response->payment_method->id', $dataId)->first();
             }
         }
 
         if (!$payment) {
-            Log::warning("Xendit Webhook: Payment not found for External ID: $externalId OR Data ID: " . ($data['data']['id'] ?? 'N/A'));
+            Log::warning("Xendit Webhook: Payment not found. ExtID: $externalId");
             return response()->json(['message' => 'Payment not found'], 404);
         }
 
-        // Delegate to service to handle transaction, locking, and creating/updating booking status
-        // This calculates the status from Xendit API directly (safest)
+        // 5. Process Payment Status
         try {
             $this->paymentService->syncPaymentStatus($payment);
         } catch (\Exception $e) {
@@ -79,14 +69,8 @@ class XenditWebhookController extends Controller
             return response()->json(['message' => 'Internal Server Error'], 500);
         }
 
-        // Broadcast Event is done in Service or we can do it here if service doesn't?
-        // Service updates DB. We might want to broadcast here.
-        // Actually, let's keep it simple. If service updates, it's done.
-        // Broadcasting should probably be inside the service too, or monitored via Observer.
-        // For now, let's re-dispatch the event if needed, but since we don't know if it CHANGED,
-        // we might spam events.
-        // Better: The Service handles the business logic. We just return success.
-
+        // 6. Broadcast Update
+        $payment->refresh();
         broadcast(new PaymentUpdated($payment));
 
         return response()->json(['message' => 'Success']);

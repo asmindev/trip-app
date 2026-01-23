@@ -12,7 +12,7 @@ export default function AdminDashboard({ stats, revenueData, routePerformance, r
         <AdminLayout title="Dashboard">
             <Head title="Admin Dashboard" />
 
-            <div className="flex flex-col gap-8 space-y-4 p-4 md:p-8">
+            <div className="flex flex-col gap-8 space-y-4">
                 {/* Header */}
                 <div className="flex items-center justify-between">
                     <div className="space-y-1">

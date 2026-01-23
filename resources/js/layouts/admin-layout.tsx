@@ -18,8 +18,10 @@ interface AdminLayoutProps {
     breadcrumbs?: BreadcrumbItemType[];
 }
 
+import { PageProps } from '@/types';
+
 export default function AdminLayout({ children, title, breadcrumbs }: AdminLayoutProps) {
-    const { props } = usePage();
+    const { props } = usePage<PageProps>();
 
     useEffect(() => {
         const flash = props.flash as { type: 'success' | 'error' | 'message' | null; content: string | null };
@@ -30,6 +32,10 @@ export default function AdminLayout({ children, title, breadcrumbs }: AdminLayou
     }, [props.flash]);
 
     const sidebarOpen = (props.sidebarOpen as boolean) ?? true;
+
+    const user = props.auth.user;
+    const isOperator = user?.roles?.includes('operator');
+    const dashboardRoute = isOperator ? route('operator.dashboard') : route('admin.dashboard');
 
     return (
         <SidebarProvider defaultOpen={sidebarOpen}>
@@ -42,7 +48,7 @@ export default function AdminLayout({ children, title, breadcrumbs }: AdminLayou
                         <Breadcrumb>
                             <BreadcrumbList>
                                 <BreadcrumbItem className="hidden md:block">
-                                    <BreadcrumbLink href={route('admin.dashboard')}>Trip App</BreadcrumbLink>
+                                    <BreadcrumbLink href={dashboardRoute}>Trip App</BreadcrumbLink>
                                 </BreadcrumbItem>
                                 {breadcrumbs
                                     ? breadcrumbs.map((crumb, index) => (

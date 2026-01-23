@@ -16,14 +16,12 @@ class LoginResponse implements LoginResponseContract
     public function toResponse($request)
     {
         $user = Auth::user();
-
-        // 1. Redirect Admin & Super Admin
-        if ($user->hasRole(['admin', 'super-admin'])) {
+        if ($user->hasRole(['admin', 'super-admin']) || $user->isAdmin()) {
             return redirect()->route('admin.dashboard');
         }
 
         // 2. Redirect Operator
-        if ($user->hasRole('operator')) {
+        if ($user->hasRole('operator') || $user->isOperator()) {
             return redirect()->route('operator.dashboard');
         }
 
