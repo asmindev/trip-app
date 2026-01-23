@@ -12,4 +12,32 @@ class ScanController extends Controller
     {
         return Inertia::render('operator/scan/page');
     }
+
+    public function process(Request $request)
+    {
+        $request->validate([
+            'code' => 'required|string',
+        ]);
+
+        // Logic validasi tiket akan ditambahkan di sini
+        // Mock response untuk sementara
+        $valid = $request->code === 'VALID123';
+
+        if ($valid) {
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Tiket valid! Silakan masuk.',
+                'data' => [
+                    'passenger' => 'John Doe',
+                    'seat' => 'A1',
+                    'ship' => 'Kapal Cepat 1',
+                ]
+            ]);
+        }
+
+        return response()->json([
+            'status' => 'error',
+            'message' => 'Tiket tidak valid atau sudah digunakan.',
+        ], 422);
+    }
 }

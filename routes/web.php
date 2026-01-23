@@ -96,5 +96,6 @@ Route::middleware('auth')->group(function () {
 
         // Route Scan
         Route::get('/scan', [\App\Http\Controllers\Operator\ScanController::class, 'index'])->name('scan.index');
+        Route::post('/scan/process', [\App\Http\Controllers\Operator\ScanController::class, 'process'])->name('scan.process');
     });
 });
